@@ -1,4 +1,4 @@
-# Ridel
+# Ribel
 
 Simulation VR d'un domaine médiéval bâti sur la carte réelle du château de l'Islette (Azay-le-Rideau), pour Meta Quest 2, avec recette sur téléphone.
 
