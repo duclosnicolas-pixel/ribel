@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RIBEL — Écuries en U — VERSION 3D V10</title>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#c5d2d3;font-family:system-ui;color:#f7f0e3}canvas{display:block;touch-action:none}.ui{position:fixed;top:12px;left:12px;max-width:350px;background:#17231edc;padding:13px;border-radius:9px;line-height:1.45}.ui small{display:block;margin-top:5px;opacity:.83}.controls{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:#17231ee6;padding:7px;border-radius:9px;max-width:96vw;overflow:auto}button{background:#43584c;color:white;border:1px solid #a1ae9f;border-radius:6px;padding:11px;white-space:nowrap}.status{position:fixed;right:12px;top:12px;background:#17231edc;padding:8px;border-radius:7px;font-size:12px}.walk-toggle{position:fixed;right:12px;bottom:75px;background:#243f32;border:2px solid #e4d8b9;font-weight:700}.pad{display:none;position:fixed;bottom:100px;left:20px;width:126px;height:126px;border-radius:50%;background:#17231e88;border:2px solid #eee8;touch-action:none;user-select:none}.pad i{position:absolute;left:43px;top:43px;width:40px;height:40px;background:#e7d7b9bb;border-radius:50%}.walk-help{display:none;position:fixed;bottom:240px;left:16px;background:#17231edc;padding:7px;font-size:12px;border-radius:5px;max-width:215px}</style></head><body>
+<div class="ui"><strong>RIBEL · ÉCURIES EN U · V10 (PORTES AJUSTÉES)</strong><small>Six boxes, murs pleins et anneaux conservés. V10 : six portes ajustées aux piliers avec jambages, feuillures, linteaux et couvre-joints. Mode Marche conservé pour inspecter les raccords. Glisser pour tourner ; pincer ou molette pour zoomer.</small></div><div class="status" id="status">Vue de la cour</div>
+<button class="walk-toggle" id="walkToggle">Mode Marche</button><div class="pad" id="pad"><i id="stick"></i></div><div class="walk-help" id="walkHelp">Joystick : avancer / reculer / pas latéral. Glisser à droite : regarder. PC : ZQSD / WASD + souris.</div><div class="controls"><button data-view="front">Façade</button><button data-view="side">Pignon</button><button data-view="top">Vue haute</button><button data-view="inside">Dans la cour</button><button data-view="roof">Toiture</button></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xb9cbd1);scene.fog=new THREE.Fog(0xb9cbd1,110,230);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,500);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xddeaff,0x81745b,2.15));const sun=new THREE.DirectionalLight(0xffe2b1,3.1);sun.position.set(-23,35,27);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-45;sun.shadow.camera.right=45;sun.shadow.camera.top=45;sun.shadow.camera.bottom=-45;sun.shadow.normalBias=.03;scene.add(sun);
+const mat=(c,roughness=1)=>new THREE.MeshStandardMaterial({color:c,roughness});
+const stone=mat(0xc9b79a),lime=mat(0xe0cdb0),timber=mat(0x5d422e),darkWood=mat(0x382a22),slate=mat(0x46515c),slate2=mat(0x57616b),iron=mat(0x292c2d,.7),earth=mat(0x85765d),cobble=mat(0x9c9280),hay=mat(0xc6a66b),grass=mat(0x7d9670),glass=mat(0x343c40,.3);
+
+// Textures 100 % locales générées en Canvas : pas de téléchargement d'images.
+// Relief par bump map, rugosité élevée, variation chromatique à petite échelle.
+function tex(kind,seed=1){
+ const c=document.createElement('canvas');c.width=c.height=512;
+ const ctx=c.getContext('2d'),im=ctx.createImageData(512,512);
+ let state=seed>>>0;function rnd(){state=(Math.imul(1664525,state)+1013904223)>>>0;return state/4294967296}
+ const noise=new Float32Array(512*512);for(let i=0;i<noise.length;i++)noise[i]=rnd();
+ const base={stone:[192,174,145],lime:[213,199,170],wood:[107,73,49],darkWood:[67,47,34],slate:[75,88,101],earth:[128,109,82],cobble:[147,138,122],hay:[197,163,100],grass:[109,137,91]}[kind]||[160,150,130];
+ for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+  const i=y*512+x,n=noise[i],grain=kind==='wood'?Math.sin(x*.09+Math.sin(y*.02)*5)*11:0;
+  const slab=kind==='slate'?((y%42<3||((x+((Math.floor(y/42)%2)*32))%72)<3)?-34:0):0;
+  const joint=kind==='stone'||kind==='cobble'?((y%74<4||((x+(Math.floor(y/74)%2)*38)%92)<4)?-34:0):0;
+  const streak=kind==='wood'?Math.sin(x*.31+Math.sin(y*.007)*9)*6:0;
+  const fibers=kind==='hay'?Math.sin((x+y)*.45)*9:0;
+  const variation=(n-.5)*37+grain+slab+joint+streak+fibers;
+  const p=i*4;
+  for(let k=0;k<3;k++)im.data[p+k]=Math.max(0,Math.min(255,base[k]+variation+(kind==='stone'?Math.sin(x*.017+y*.029)*8:0)));
+  im.data[p+3]=255;
+ }
+ ctx.putImageData(im,0,0);
+ if(kind==='wood'){ctx.globalAlpha=.28;for(let i=0;i<85;i++){ctx.strokeStyle=i%2?'#27170e':'#dfbd8d';ctx.lineWidth=.4+rnd()*1.3;const x=rnd()*512;ctx.beginPath();ctx.moveTo(x,0);ctx.bezierCurveTo(x+10,140,x-10,320,x+8,512);ctx.stroke()}ctx.globalAlpha=1}
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),8);return t;
+}
+function surface(kind,repeatX=1,repeatY=1,roughness=.95,bump=.075){
+ const color=tex(kind,kind.length*13579),relief=color.clone();relief.image=color.image;
+ for(const t of [color,relief]){t.repeat.set(repeatX,repeatY);t.needsUpdate=true}
+ relief.colorSpace=THREE.NoColorSpace;
+ return new THREE.MeshStandardMaterial({map:color,bumpMap:relief,bumpScale:bump,roughness});
+}
+const surfStone=surface('stone',2,1.2,.98,.095),surfLime=surface('lime',2,1,.98,.04),
+ surfTimber=surface('wood',.45,2.5,.94,.06),surfDark=surface('darkWood',.6,2,.95,.06),
+ surfSlate=surface('slate',3,3,.88,.045),surfEarth=surface('earth',3,3,.99,.06),
+ surfCobble=surface('cobble',2,2,.99,.08),surfHay=surface('hay',2,1,.99,.04),
+ surfGrass=surface('grass',6,6,.98,.04);
+[ [stone,surfStone],[lime,surfLime],[timber,surfTimber],[darkWood,surfDark],[slate,surfSlate],[slate2,surfSlate],[earth,surfEarth],[cobble,surfCobble],[hay,surfHay],[grass,surfGrass] ].forEach(([dst,src])=>{dst.map=src.map;dst.bumpMap=src.bumpMap;dst.bumpScale=src.bumpScale;dst.roughness=src.roughness;dst.color.set(0xffffff);dst.needsUpdate=true});
+const group=new THREE.Group();scene.add(group);
+function box(w,h,d,x,y,z,m,p=group){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
+function beam(a,b,r,m=timber,p=group){const v1=new THREE.Vector3(...a),v2=new THREE.Vector3(...b),delta=v2.clone().sub(v1);const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,delta.length(),7),m);o.position.copy(v1.add(v2).multiplyScalar(.5));o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());o.castShadow=true;p.add(o);return o}
+function roofPlane(a,b,c,d,m){const verts=[...a,...b,...c,...a,...c,...d];const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,1,1,0,0,1,1,0,1],2));g.computeVertexNormals();const material=new THREE.MeshStandardMaterial({map:surfSlate.map,bumpMap:surfSlate.bumpMap,bumpScale:.04,color:m,roughness:.89,side:THREE.DoubleSide});const o=new THREE.Mesh(g,material);o.castShadow=true;o.receiveShadow=true;group.add(o);return o}
+box(115,.4,115,0,-.3,0,grass);box(64,.12,38,0,.02,11,earth);
+for(let i=0;i<380;i++){const x=(Math.random()-.5)*60,z=1+Math.random()*24;const p=box(.3+Math.random()*.55,.04,.24+Math.random()*.4,x,.1,z,cobble);p.rotation.y=Math.random()*3}
+// Ensemble en U : 6 boxes sur le bâtiment nord, deux ailes perpendiculaires,
+// cour centrale ouverte au sud ; maison du palefrenier à l'extrémité sud-est.
+// Toutes les pièces de charpente suivent les pans, sans barres flottantes.
+const wall=surface('lime',2,1),wood2=surface('wood',1,2),roofDark=mat(0x414b55);
+function pitched(x,z,w,d,eave,rise,material=0x46515c){
+  const z0=z-d/2,z1=z+d/2,y=eave;
+  roofPlane([x-w/2,y,z0],[x+w/2,y,z0],[x+w/2,y+rise,z],[x-w/2,y+rise,z],material);
+  roofPlane([x-w/2,y+rise,z],[x+w/2,y+rise,z],[x+w/2,y,z1],[x-w/2,y,z1],material);
+  beam([x-w/2,y+rise,z],[x+w/2,y+rise,z],.13,roofDark);
+  // Arêtiers de pignon seulement : pas de lignes répétées traversant l'espace.
+  for(const xx of [x-w/2,x+w/2]){
+    beam([xx,y,z0],[xx,y+rise,z],.14,timber);
+    beam([xx,y+rise,z],[xx,y,z1],.14,timber);
+  }
+}
+// Toit orienté selon l'axe Z : nécessaire pour les ailes perpendiculaires.
+// Chaque versant rejoint précisément le faîtage et l'égout sur toute la longueur.
+function pitchedZ(x,z,w,d,eave,rise,material=0x46515c){
+ const xl=x-w/2,xr=x+w/2,z0=z-d/2,z1=z+d/2,peak=eave+rise;
+ roofPlane([xl,eave,z0],[xl,eave,z1],[x,peak,z1],[x,peak,z0],material);
+ roofPlane([x,peak,z0],[x,peak,z1],[xr,eave,z1],[xr,eave,z0],material);
+ beam([x,peak,z0],[x,peak,z1],.11,timber);
+ for(const zz of [z0,z1]){
+  beam([xl,eave,zz],[x,peak,zz],.13,timber);
+  beam([x,peak,zz],[xr,eave,zz],.13,timber);
+ }
+}
+function solidGableX(x,z,w,eave,rise,thick,material){
+ // Pignon plein dans un plan YZ, en bout d'un bâtiment au faîtage orienté X.
+ const z0=z-w/2,z1=z+w/2;
+ const g=new THREE.BufferGeometry();
+ const xx=x-thick/2;
+ g.setAttribute('position',new THREE.Float32BufferAttribute([
+ xx,eave,z0,xx,eave,z1,xx,eave+rise,z,
+ xx+thick,eave,z0,xx+thick,eave+rise,z,xx+thick,eave,z1,
+ xx,eave,z0,xx,eave+rise,z,xx+thick,eave+rise,z,
+ xx,eave,z0,xx+thick,eave+rise,z,xx+thick,eave,z0,
+ xx,eave,z1,xx+thick,eave,z1,xx+thick,eave+rise,z,
+ xx,eave,z1,xx+thick,eave+rise,z,xx,eave+rise,z
+ ],3));
+ g.computeVertexNormals();
+ const mesh=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0xc5b499,roughness:1,side:THREE.DoubleSide}));
+ mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
+}
+function solidGableZ(x,z,w,eave,rise,material){
+ // Triangle de pignon dans le plan XY, fermeture à chaque extrémité des ailes.
+ const v=[x-w/2,eave,z,x+w/2,eave,z,x,eave+rise,z];
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.computeVertexNormals();
+ const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0xc9b79a,side:THREE.DoubleSide,roughness:1}));
+ m.castShadow=true;m.receiveShadow=true;group.add(m);
+}
+function post(x,z,h=4.4){box(.46,h,.46,x,h/2,z,timber)}
+function gableWall(x,z,w,d,h){
+ box(w,1.1,d,x,.55,z,stone);
+ box(w,h-1.1,d,x,(h+1.1)/2,z,wall);
+ for(let xx=x-w/2;xx<=x+w/2+.1;xx+=4.2){
+  box(.22,h-1.1,.25,Math.min(xx,x+w/2), (h+1.1)/2,z+d/2+.15,timber);
+ }
+}
+function dormer(x,z,y){
+ box(1.8,1.5,1.4,x,y,z,wall);
+ box(1.05,.95,.12,x,y+.1,z+.76,glass);
+ box(.12,1.1,.14,x,y+.1,z+.84,timber);
+ roofPlane([x-1.18,y+.78,z+1],[x,y+1.75,z+1],[x,y+1.75,z-.9],[x-1.18,y+.78,z-.9],0x414b55);
+ roofPlane([x,y+1.75,z+1],[x+1.18,y+.78,z+1],[x+1.18,y+.78,z-.9],[x,y+1.75,z-.9],0x414b55);
+}
+// Bâtiment nord, 36 x 11 m ; façade des boxes orientée vers la cour au sud.
+const NZ=-17,NW=36,ND=11,FRONT=NZ+ND/2;const oakNight=surface('wood',.7,2.3);
+box(NW,1.1,ND,0,.55,NZ,stone);
+box(NW,4.9,.6,0,2.45,NZ-ND/2,wall);
+for(const x of [-18,18])box(.6,4.8,ND,x,2.4,NZ,stone);
+for(let i=0;i<=6;i++){
+ const x=-18+i*6;
+ box(.65,4.9,.8,x,2.45,FRONT,stone);
+ if(i>0&&i<6){box(.28,4.95,ND-1.2,x,2.475,NZ,wall);box(.12,2.1,ND-1.1,x,3.85,NZ,oakNight);}
+}
+box(NW,.45,.7,0,4.85,FRONT,timber);box(NW,.62,.46,0,4.91,NZ-ND/2+.12,wall);
+for(let i=0;i<6;i++){
+ const x=-15+i*6;
+ // Six ouvertures lisibles avec portes basses distinctes.
+ box(5.35,3.05,.24,x,1.60,FRONT+.48,darkWood);
+ beam([x-2.57,.20,FRONT+.67],[x+2.57,2.95,FRONT+.67],.095,wood2);
+ box(3.2,.6,.8,x,1.0,NZ-2.7,darkWood);
+ box(3.05,.32,.72,x,1.15,NZ-2.7,hay);
+ // Mangeoires individuelles en fond de box.
+ box(2.6,.25,.75,x,.85,NZ-2.9,hay);
+}
+// V10 : joints architecturaux des six portes.
+// Entraxe 6 m, poteaux de 0,65 m : baie libre = 5,35 m.
+// Les vantaux touchent les tableaux et sont recouverts par les feuillures.
+const doorJamb=surface('wood',.45,2.1),doorStone=surface('stone',.8,1);
+for(let i=0;i<6;i++){
+ const x=-15+i*6,front=FRONT+.52;
+ // Montants de feuillure de chaque côté : recouvrent 10 cm du vantail.
+ for(const dx of [-2.665,2.665]){
+  box(.20,3.22,.28,x+dx,1.64,front+.075,doorJamb);
+  // Bande de pierre au contact du pilier, fermant tout jour arrière.
+  box(.16,3.35,.40,x+dx,1.72,FRONT+.22,doorStone);
+ }
+ // Linteau supérieur et seuil sans fente apparente.
+ box(5.55,.22,.38,x,3.20,front+.035,doorJamb);
+ box(5.55,.14,.42,x,.09,front+.04,doorStone);
+ // Couvre-joint de battue central sur chaque porte.
+ box(.13,2.93,.11,x,1.61,front+.17,doorJamb);
+}
+pitched(0,NZ,38,13,5.2,5.3);
+for(const x of [-12,0,12])dormer(x,NZ+3.1,8.0);
+for(const x of [-14,14]){box(1.2,2.0,1.1,x,11.0,NZ-1.7,stone);box(1.5,.22,1.35,x,12.05,NZ-1.7,stone)}
+// Aile ouest : stockage de fourrage, perpendiculaire aux six boxes.
+const WX=-22,WZ=3.0,WL=22;
+box(6.8,.45,WL,WX,.23,WZ,stone);
+for(const x of [WX-3.1,WX+3.1])for(let z=-8;z<=14.1;z+=4.4)post(x,z);
+for(let z=-8;z<=14.1;z+=4.4)box(6.8,.22,.26,WX,4.35,z,timber);
+pitchedZ(WX,WZ,7.8,24,4.55,2.5);
+// Mangeoires de l'aile ouest ajoutées contre le mur de fond, plus bas.
+// Aile est : hangar de distribution, deuxième retour du U.
+const EX=22,EZ=3;
+box(6.8,.45,22,EX,.23,EZ,stone);
+for(const x of [EX-3.1,EX+3.1])for(let z=-8;z<=14.1;z+=4.4)post(x,z);
+pitchedZ(EX,EZ,7.8,24,4.55,2.5);
+// Deux murs de fond continus, sur les côtés extérieurs du U.
+// Les chevaux restent dans les ailes couvertes, face au mur et aux mangeoires.
+function tieRing(x,y,z){
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(.18,.045,8,18),iron);
+ ring.rotation.y=Math.PI/2;ring.position.set(x,y,z);ring.castShadow=true;group.add(ring);
+ const plate=box(.10,.32,.32,x+(x<0?-.04:.04),y,z,iron);
+ // Plaque d'ancrage et deux rivets.
+ for(const dz of [-.10,.10]){const rivet=new THREE.Mesh(new THREE.SphereGeometry(.038,7,5),iron);rivet.position.set(x+(x<0?.11:-.11),y,z+dz);group.add(rivet)}
+}
+for(const side of [-1,1]){
+ const cx=side*22,outer=side*25.48,inner=side*25.08;
+ // Mur plein maçonné sur toute la longueur de l'aile.
+ box(.60,4.35,22.0,outer,2.18,3,stone);
+ box(.19,.22,22.2,outer,4.44,3,lime);
+ for(let i=0;i<7;i++){
+  const z=-6.3+i*2.95;
+  // Mangeoire de pierre et bois, adossée au mur plein.
+  box(1.05,.95,2.25,inner-side*.70,.55,z,darkWood);
+  box(1.18,.18,2.35,inner-side*.70,1.10,z,stone);
+  box(.95,.13,1.95,inner-side*.70,1.24,z,hay);
+  // Anneau de fer au-dessus du râtelier, côté cheval.
+  tieRing(inner-side*.16,1.78,z);
+ }
+ // Contreforts extérieurs pour lecture architecturale du mur plein.
+ for(const z of [-7.5,-1.5,4.5,10.5,14])box(.62,3.0,.62,outer+side*.55,1.5,z,stone);
+}
+
+// Logement du palefrenier dans le prolongement axial de l'aile est.
+// Même largeur et même orientation de faîtage que l'aile, sans décroché latéral.
+const CX=22,CZ=20.8,CW=7.8,CD=11.6;
+box(CW,1.05,CD,CX,.525,CZ,stone);
+box(CW,4.1,CD,CX,3.1,CZ,wall);
+pitchedZ(CX,CZ,8.6,12.4,5.2,3.1);
+for(const z of [CZ-CD/2-.08,CZ+CD/2+.08])solidGableZ(CX,z,8.6,5.2,3.1,stone);
+// Façade sud de la maison : porte, fenêtres, volets.
+const HOMEFRONT=CZ+CD/2+.13;
+box(1.65,2.75,.23,CX-1.6,1.75,HOMEFRONT,darkWood);
+for(const x of [CX+.45,CX+2.45]){
+ box(1.1,1.25,.18,x,2.9,HOMEFRONT,glass);
+ box(.12,1.28,.20,x,2.9,HOMEFRONT+.12,timber);
+ box(1.15,.12,.21,x,2.9,HOMEFRONT+.12,timber);
+}
+box(.85,1.85,.85,CX+2.1,8.5,CZ-1.5,stone);
+box(1.2,.22,1.2,CX+2.1,9.5,CZ-1.5,stone);
+// Cour centrale pavée, ouverte au sud.
+box(34,.08,28,0,.06,6,earth);
+for(let i=0;i<480;i++){const x=(Math.random()-.5)*32,z=-8+Math.random()*27;const p=box(.25+Math.random()*.55,.035,.2+Math.random()*.35,x,.12,z,cobble);p.rotation.y=Math.random()*3}
+for(const x of [-17.8,17.8]){for(const z of [12,16,20])post(x,z,1.35)}
+box(4.8,.65,1.2,-8,.45,14,stone);
+box(2.5,.7,1.2,9,.45,15,darkWood);
+
+// V4 — passe de détails géométriques et matières, sans modifier les volumes validés.
+const mortar=surface('stone',1,1),stoneLight=surface('stone',1,1),stoneMid=surface('stone',1,1);stoneLight.color.set(0xf2e4d3);stoneMid.color.set(0xc9b8a1);
+const agedTimber=surface('wood',.5,2),strawGold=surface('hay',1,1),metal=mat(0x343638,.58);
+function stoneCoursesOnSide(x,zStart,zEnd,wallSide){
+ // Assises de moellons en léger relief sur la face extérieure des murs de nourrissage.
+ const face=x+wallSide*.316;
+ for(let row=0;row<10;row++){
+  const yy=.34+row*.4;
+  const stagger=row%2*.54;
+  for(let zz=zStart+stagger;zz<zEnd;zz+=1.18){
+   const length=Math.min(1.07,zEnd-zz);
+   if(length<.18)continue;
+   const shade=(row+Math.floor(zz*3))%4;
+   box(.045,.33,length,face,yy,zz+length/2,shade===0?stoneLight:shade===1?stoneMid:shade===2?stone:mortar);
+  }
+ }
+}
+stoneCoursesOnSide(-25.48,-7.9,13.9,-1);
+stoneCoursesOnSide(25.48,-7.9,13.9,1);
+// Lames d'ardoise sur les deux versants du grand bâtiment nord.
+function roofTilesMain(){
+ const x0=-18.85,x1=18.85,zc=-17,edge=6.45,eave=5.2,rise=5.3;
+ const colors=[0x3d4953,0x4b5862,0x55606a,0x45515d];
+ for(const side of [-1,1]){
+  for(let row=0;row<11;row++){
+   const t0=row/11,t1=(row+1)/11;
+   const za=zc+side*edge*t0,zb=zc+side*edge*t1;
+   const ya=eave+rise*(1-t0)+.035,yb=eave+rise*(1-t1)+.035;
+   for(let k=0;k<35;k++){
+    const x=x0+k*1.08+(row%2)*.18;
+    const xEnd=Math.min(x+.99,x1);
+    if(xEnd<=x)continue;
+    roofPlane([x,ya,za],[xEnd,ya,za],[xEnd,yb,zb],[x,yb,zb],colors[(row*7+k*3)%4]);
+   }
+  }
+ }
+}
+roofTilesMain();
+// Colombages et ferrures visibles sur les six portes basses.
+for(let i=0;i<6;i++){
+ const x=-15+i*6,z=FRONT+.59;
+ for(const dx of [-2.56,2.56])box(.14,3.02,.16,x+dx,1.59,z,agedTimber);
+ for(const dy of [.33,1.48,2.96])box(5.16,.11,.15,x,dy,z,agedTimber);
+ const hingeX=x-2.36;
+ for(const dy of [.55,2.45])box(.66,.075,.11,hingeX+.3,dy,z+.12,metal);
+ const knob=new THREE.Mesh(new THREE.SphereGeometry(.095,8,6),metal);
+ knob.position.set(x+1.6,1.80,z+.17);group.add(knob);
+}
+// Une porte charretière et quelques accessoires lisibles depuis la cour.
+// Ancienne porte décorative retirée : aucune ouverture n'existait dans ce mur.
+for(let j=0;j<4;j++){
+ const z=9+j*1.55;
+ box(1.25,.75,.9,-9.3,.43,z,agedTimber);
+ box(1.05,.19,.8,-9.3,.91,z,strawGold);
+}
+// Tonneaux à douves avec cerclages de fer.
+function barrel(x,z){
+ const body=new THREE.Mesh(new THREE.CylinderGeometry(.47,.43,1.05,12),agedTimber);
+ body.position.set(x,.55,z);body.castShadow=true;group.add(body);
+ for(const y of [.22,.84]){
+  const band=new THREE.Mesh(new THREE.TorusGeometry(.465,.035,6,16),metal);
+  band.rotation.x=Math.PI/2;band.position.set(x,y,z);group.add(band);
+ }
+}
+barrel(-8,17);barrel(-6.8,17.5);barrel(8.2,17.2);
+// Lanternes simples aux accès des ailes.
+function lantern(x,z){
+ box(.14,.9,.15,x,3.0,z,metal);
+ box(.42,.54,.42,x,2.45,z,mat(0xcaa875,.55));
+ box(.52,.12,.52,x,2.77,z,metal);
+}
+lantern(-18.55,12.4);lantern(18.55,12.4);
+// Bande de seuil devant les six boxes.
+for(let i=0;i<6;i++)box(5.45,.12,.75,-15+i*6,.12,FRONT+1.2,stoneMid);
+
+
+// V7 — fermeture structurelle des jours et des pignons.
+// Pignons triangulaires complets au-dessus des murs du bâtiment nord.
+for(const x of [-18.92,18.92])solidGableX(x,NZ,12.8,5.2,5.3,.20,stone);
+// Pignons du logement : le volume rectangulaire existant s'arrêtait à l'égout.
+
+// Ailes latérales : fermeture des pignons à chaque bout.
+for(const x of [WX,EX]){
+ for(const z of [-9.05,15.05])solidGableZ(x,z,7.8,4.55,2.5,stone);
+}
+// Parois latérales des six boxes jusqu'au-dessous de la toiture.
+
+// Murs extérieurs de rive sous les égouts des ailes, côté cour :
+// garde l'espace de nourrissage ouvert au rez-de-chaussée.
+for(const x of [-18.45,18.45])box(.18,.40,22,x,4.43,3,timber);
+// Ligne de raccord sous la rive du toit principal.
+box(36.5,.38,.5,0,5.06,FRONT+.20,timber);
+// Fermeture des jours au pied des deux pignons de la maison.
+
+
+// V6 — architecture de façade et détails lisibles sur téléphone.
+const plaster=surface('lime',1.4,1.1),oak=surface('wood',.55,2.2),lead=mat(0x31383b,.7);
+const shutter=surface('darkWood',.65,1.7);
+function cottageBeam(a,b,r=.115){beam(a,b,r,oak)}
+// Maison alignée : colombages sur façade sud.
+for(const x of [CX-CW/2+.2,CX,CX+CW/2-.2])box(.20,3.6,.24,x,3.35,HOMEFRONT+.15,oak);
+for(const y of [1.45,3.35,5.02])box(CW,.18,.23,CX,y,HOMEFRONT+.15,oak);
+for(const x of [CX-3.5,CX+.1])cottageBeam([x,1.52,HOMEFRONT+.22],[x+3.2,3.25,HOMEFRONT+.22],.085);
+// Lucarnes : encadrements et appuis en bois sombre.
+for(const xx of [-12,0,12]){
+ const zz=NZ+3.89;
+ box(1.24,.12,.15,xx,8.61,zz,oak);
+ for(const dx of [-.59,.59])box(.13,1.0,.16,xx+dx,8.08,zz,oak);
+ box(.10,.95,.14,xx,8.08,zz+.02,lead);
+ box(1.3,.13,.38,xx,7.58,zz+.16,stone);
+}
+// Contreforts et pierre de taille sur la façade des boxes.
+for(let i=0;i<=6;i++){
+ const xx=-18+i*6;
+ box(.83,.55,1.12,xx,.35,FRONT+.10,stoneMid);
+ box(.8,.16,1.05,xx,4.88,FRONT+.12,stoneLight);
+}
+// Barres horizontales en bois sous toiture, de part et d'autre de la cour.
+for(const sx of [-1,1]){
+ const xx=sx*18.62;
+ for(let zz=-7.6;zz<=11.8;zz+=3.8){
+  box(.14,.12,3.5,xx,3.45,zz+1.6,oak);
+ }
+}
+// Traces de mousse et plantes basses le long des pieds de murs.
+const moss=mat(0x667553),herb=mat(0x69835c);
+function grassTuft(x,z,scale=1){
+ for(let k=0;k<3;k++){
+  const blade=new THREE.Mesh(new THREE.ConeGeometry(.075*scale,.45*scale,4),herb);
+  blade.position.set(x+(k-1)*.12*scale,.22*scale,z+(k%2)*.09*scale);
+  blade.rotation.z=(k-1)*.23;group.add(blade);
+ }
+}
+for(let i=0;i<30;i++){
+ const z=-7.5+(i%15)*1.5,side=i<15?-1:1;
+ grassTuft(side*26.5,z,.55+(i%3)*.12);
+}
+for(let i=0;i<18;i++){
+ const xx=-17.5+i*2.0;
+ grassTuft(xx,-23.1,.48+(i%4)*.10);
+}
+// Cordes de chanvre courtes, tombant depuis quelques anneaux (sans traverses parasites).
+const rope=mat(0x988366,.98);
+for(const sx of [-1,1])for(let j=0;j<7;j++){
+ const z=-6.3+j*2.95,x=sx*(25.08-.16);
+ beam([x,1.74,z],[x-sx*.16,1.38,z+.16],.027,rope);
+}
+// Abreuvoir en pierre au centre de la cour, sans entraver le passage.
+box(2.65,.85,1.2,0,.48,13.8,stoneMid);
+box(2.32,.055,.92,0,.93,13.8,mat(0x566b6d,.35));
+// Optimisation mobile : ombres moins coûteuses sur les petits écrans.
+if(Math.min(innerWidth,innerHeight)<700){
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.35));
+ sun.shadow.mapSize.set(1024,1024);
+}
+
+// L'axe central est libre pour entrer et regarder les six boxes.
+let walking=false,walkYaw=0,walkPitch=0,moveX=0,moveY=0;
+const pressed=new Set(),pad=document.getElementById('pad'),stick=document.getElementById('stick'),walkHelp=document.getElementById('walkHelp'),walkToggle=document.getElementById('walkToggle');
+const walkPos=new THREE.Vector3(0,1.72,12);
+function walkView(){camera.position.copy(walkPos);camera.rotation.order='YXZ';camera.rotation.y=walkYaw;camera.rotation.x=walkPitch}
+function toggleWalk(){
+ walking=!walking;walkToggle.textContent=walking?'Retour Vue libre':'Mode Marche';
+ pad.style.display=walking?'block':'none';walkHelp.style.display=walking?'block':'none';
+ document.querySelector('.controls').style.display=walking?'none':'flex';
+ document.getElementById('status').textContent=walking?'Marche libre — 1,72 m':'Vue orbitale';
+ if(walking){walkPos.set(0,1.72,12);walkYaw=0;walkPitch=0;walkView()}else apply();
+}
+walkToggle.addEventListener('click',toggleWalk);
+function joystick(e){const b=pad.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;let dx=(e.clientX-cx)/48,dy=(e.clientY-cy)/48;const m=Math.max(1,Math.hypot(dx,dy));moveX=dx/m;moveY=dy/m;stick.style.transform='translate('+(moveX*38)+'px,'+(moveY*38)+'px)'}
+pad.addEventListener('pointerdown',e=>{pad.setPointerCapture(e.pointerId);joystick(e)});
+pad.addEventListener('pointermove',e=>{if(pad.hasPointerCapture(e.pointerId))joystick(e)});
+function stopStick(){moveX=moveY=0;stick.style.transform='translate(0,0)'}
+pad.addEventListener('pointerup',stopStick);pad.addEventListener('pointercancel',stopStick);
+addEventListener('keydown',e=>{pressed.add(e.key.toLowerCase());if(walking&&['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});
+addEventListener('keyup',e=>pressed.delete(e.key.toLowerCase()));
+let lastFrame=performance.now();
+function moveWalk(now){
+ const dt=Math.min((now-lastFrame)/1000,.05);lastFrame=now;
+ if(!walking)return;
+ const forward=moveY+(pressed.has('w')||pressed.has('z')||pressed.has('arrowup')?-1:0)+(pressed.has('s')||pressed.has('arrowdown')?1:0);
+ const strafe=moveX+(pressed.has('d')||pressed.has('arrowright')?1:0)-(pressed.has('a')||pressed.has('q')||pressed.has('arrowleft')?1:0);
+ const len=Math.max(1,Math.hypot(forward,strafe)),speed=(pressed.has('shift')?7:3.6)*dt;
+ walkPos.x+=(Math.cos(walkYaw)*strafe+Math.sin(walkYaw)*(-forward))/len*speed;
+ walkPos.z+=(Math.sin(walkYaw)*strafe+Math.cos(walkYaw)*forward)/len*speed;
+ walkPos.x=Math.max(-43,Math.min(43,walkPos.x));walkPos.z=Math.max(-35,Math.min(35,walkPos.z));
+ walkView();
+}
+const target=new THREE.Vector3(0,4,0);let theta=.05,phi=.85,dist=72;
+function apply(){phi=Math.max(.17,Math.min(1.52,phi));dist=Math.max(12,Math.min(105,dist));camera.position.set(target.x+dist*Math.sin(phi)*Math.sin(theta),target.y+dist*Math.cos(phi),target.z+dist*Math.sin(phi)*Math.cos(theta));camera.lookAt(target)}
+const views={front:[.05,1.05,75,0,4,0],side:[1.55,.95,80,0,5,0],top:[.3,.2,85,0,3,0],inside:[.02,1.38,28,0,3,-7],roof:[.8,.6,65,0,6,0]};
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(walking)toggleWalk();const v=views[b.dataset.view];[theta,phi,dist]=v;target.set(v[3],v[4],v[5]);document.getElementById('status').textContent=b.textContent;apply()}));
+let down=false,lastX=0,lastY=0;renderer.domElement.addEventListener('pointerdown',e=>{down=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;if(walking){walkYaw-=dx*.004;walkPitch=Math.max(-1.25,Math.min(1.25,walkPitch-dy*.0035));walkView()}else{theta-=dx*.006;phi+=dy*.005;apply()}});renderer.domElement.addEventListener('pointerup',()=>down=false);renderer.domElement.addEventListener('wheel',e=>{if(!walking){dist*=Math.exp(e.deltaY*.001);apply()}},{passive:true});let pinch=0;renderer.domElement.addEventListener('touchmove',e=>{if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pinch)dist*=pinch/d;pinch=d;apply()}else pinch=0},{passive:true});renderer.domElement.addEventListener('touchend',()=>pinch=0);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});apply();renderer.setAnimationLoop(now=>{moveWalk(now);renderer.render(scene,camera)});
+</script></body></html>
