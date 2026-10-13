@@ -1,12 +1,12 @@
 # RIBEL — Architecture cible et direction artistique du village
-Statut : proposition AMOE / UX pour validation MOA et revue MOE. 13 octobre 2026. **Aucune validation T1/T4 n'est révoquée.** Périmètre de production actuel : **village uniquement**.
+Statut : direction artistique et lancement validés par la MOA le 13 octobre 2026 ; revue technique MOE à conduire avant fusion. **Aucune validation T1/T4 n'est révoquée.** Périmètre de production actuel : **village uniquement**.
 
 ## Décisions et contraintes
 - MOA : Nicolas ; MOE, AMOA, Tech Lead : Claude ; ChatGPT : assistance AMOE et UX.
 - T1 (place du village) et T4 (horizon) validés par la MOA. La géométrie du banc d'essai reste un jalon fonctionnel, **pas** une validation esthétique.
 - T3 en démarrage : pas de domaine multi-zones déjà fonctionnel. Maintenir la compatibilité **GitHub Pages HTTPS**, navigateur Meta Quest 2 et Galaxy Z Fold 6.
 - La carte aérienne annotée fournie le 13/10/2026 est une **intention de zonage**, non une emprise géoréférencée mesurée. Rouge = limite globale approximative ; bleu = secteurs indicatifs. Ne pas déduire des coordonnées exactes des tracés à main levée.
-- Conserver la place **ovale 80 m × 28 m**, la fontaine centrale et **deux axes traversants orthogonaux** (nord–sud et est–ouest). Au sud : **nouvelle zone Paroisse / Cimetière / Cloître** séparée du village. Au nord : **écuries**, accès au château ; depuis la zone château, accès vers la sortie du domaine et les remparts. À l'ouest : **grenier à blé**.
+- Conserver la place **ovale 80 m × 28 m**, la fontaine centrale et **deux axes traversants orthogonaux** (nord–sud et est–ouest). Au sud : **nouvelle zone Paroisse / Cimetière / Cloître** séparée du village. Au nord : **écuries**, accès au château ; depuis la zone château, accès vers la sortie du domaine et les remparts. À l'est : **grenier à blé** (correction et validation MOA du 13 octobre 2026).
 - Ne pas modifier silencieusement les décisions A4 (maison futuriste invisible depuis le domaine) et A5 (forêt non visitable hors chemin dédié).
 - Référence historique : France rurale, Val de Loire, fin XVe – début XVIe siècle. Architecture **plausible**, non reconstruction archéologique attestée. Toute affirmation de fidélité au site réel nécessite une source.
 
@@ -46,8 +46,8 @@ Ce plan décrit une **cible**, non des fichiers déjà présents. Ne pas remplac
 - Fontaine centrale avec dégagement circulaire et espace de marché.
 - Axe nord : rue lisible vers le château, écuries avant la transition. Prévoir visibilité du repère château sans charger le château détaillé.
 - Axe sud : perspective vers l'ensemble paroissial ; portail clairement identifiable avant chargement de la zone distincte.
-- Axe ouest : grenier à blé monumental mais crédible, lié au marché et aux charrettes.
-- Axe est : commerces et ruelle de service, sans ajout de nouvelle zone non validée.
+- Axe est : grenier à blé monumental mais crédible, lié au marché et aux charrettes.
+- Axe ouest : commerces et ruelle de service, sans ajout de nouvelle zone non validée.
 - Façades irrégulières mais continuité urbaine ; éviter la répétition identique des maisons. Prévoir circulation piétonne praticable et seuils sans collisions incohérentes.
 
 ## Bible artistique — bâti 1450–1550, Val de Loire
@@ -73,7 +73,7 @@ Ce plan décrit une **cible**, non des fichiers déjà présents. Ne pas remplac
 
 ## Critères de recette de la première tranche
 - T1/T4 restent conformes fonctionnellement : place ovale, fontaine, horizon, navigation tactile et VR sans régression.
-- Axes nord/sud et est/ouest immédiatement lisibles ; écuries au nord, grenier à blé à l'ouest ; zone sud identifiée mais pas chargée en détail.
+- Axes nord/sud et est/ouest immédiatement lisibles ; écuries au nord, grenier à blé à l'est ; zone sud identifiée mais pas chargée en détail.
 - Une **maison témoin 1450–1550** validée visuellement par Nicolas (matières, proportions, ouvertures, toiture, vieillissement).
 - Téléportation interdite dans la fontaine, murs, bâtiments et hors passages autorisés ; orientation préservée aux transitions.
 - Pas de saccade majeure ou crash au chargement ; mesure des fps sur Quest 2 après stabilisation. Cible initiale 72 i/s à confirmer par appareil et scène, non promesse de résultat.
@@ -84,7 +84,7 @@ Ce plan décrit une **cible**, non des fichiers déjà présents. Ne pas remplac
 **R0 (ce document)** : décision d'architecture, plan et bible artistique ; aucune altération du site public.
 **R1** : modulariser sans changer le rendu ni les commandes, tests de parité.
 **R2** : intégrer bâtiment témoin haute qualité et matériaux ; validation MOA.
-**R3** : reconstruire progressivement la place et ses abords, écuries et grenier ; maintenir T1/T4.
+**R3** : reconstruire progressivement la place et ses abords, écuries et grenier à l'est ; maintenir T1/T4.
 **R4** : gestionnaire de zones + portail nord/sud avec scènes de substitution ; la zone Paroisse et le château détaillés restent des lots ultérieurs.
 **R5** : optimisation Quest 2, tests Fold 6, recette et publication.
 
@@ -92,3 +92,8 @@ Ce plan décrit une **cible**, non des fichiers déjà présents. Ne pas remplac
 1. Confirmer que la longueur 80 m de la place correspond bien à l'axe est–ouest de la carte de conception.
 2. Confirmer l'architecture souhaitée pour la paroisse : église et cloître attenants ou séparés.
 3. Fournir éventuellement des photos de bâtiments ou un niveau de réalisme de référence. Sans cela, privilégier une restitution ligérienne plausible et documentée.
+
+## Feu vert MOA — 13 octobre 2026
+- Visuels de référence et direction artistique validés ; démarrage des travaux autorisé.
+- Correction d'implantation : **grenier à blé à l'EST**, et non à l'ouest. Les écuries restent au nord.
+- T1 et T4 restent validés ; les autres tâches sont autorisées à avancer, mais non réputées réceptionnées.
