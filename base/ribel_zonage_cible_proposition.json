@@ -3,7 +3,7 @@
   "project": "RIBEL",
   "status": "proposition_non_deployee",
   "units": "metres",
-  "note": "Zonage conceptuel issu de l'annotation MOA du 13 octobre 2026 ; pas de géoréférencement ni de limites métriques définitives.",
+  "note": "Zonage conceptuel issu de l'annotation MOA du 13 octobre 2026 ; pas de géoréférencement ni de limites métriques définitives. Correction MOA 13/10/2026 : grenier à blé à l'est.",
   "active_zone": "village",
   "shared_layers": [
     "sky",
@@ -33,7 +33,7 @@
       "landmarks": [
         "central_fountain",
         "north_stables",
-        "west_granary"
+        "east_granary"
       ],
       "detailed_assets": "assets/village/",
       "portals": [
