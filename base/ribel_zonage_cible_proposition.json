@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "project": "RIBEL",
+  "status": "proposition_non_deployee",
+  "units": "metres",
+  "note": "Zonage conceptuel issu de l'annotation MOA du 13 octobre 2026 ; pas de géoréférencement ni de limites métriques définitives.",
+  "active_zone": "village",
+  "shared_layers": [
+    "sky",
+    "distant_horizon_T4",
+    "global_lighting",
+    "player",
+    "navigation",
+    "diagnostics"
+  ],
+  "zones": [
+    {
+      "id": "village",
+      "status": "active_prototype",
+      "shape": "oval",
+      "square_dimensions_m": [
+        80,
+        28
+      ],
+      "square_center_local_m": [
+        0,
+        0
+      ],
+      "axes": [
+        "east_west",
+        "north_south"
+      ],
+      "landmarks": [
+        "central_fountain",
+        "north_stables",
+        "west_granary"
+      ],
+      "detailed_assets": "assets/village/",
+      "portals": [
+        "village_to_chateau",
+        "village_to_paroisse"
+      ]
+    },
+    {
+      "id": "paroisse",
+      "status": "planned_new",
+      "features": [
+        "parish_church",
+        "cemetery",
+        "cloister"
+      ],
+      "location_relative_to_village": "south",
+      "portals": [
+        "paroisse_to_village"
+      ]
+    },
+    {
+      "id": "chateau_exterieur",
+      "status": "planned",
+      "features": [
+        "castle",
+        "domain_exit_via_ramparts"
+      ],
+      "location_relative_to_village": "north",
+      "portals": [
+        "chateau_to_village",
+        "chateau_to_outside"
+      ]
+    },
+    {
+      "id": "chateau_interieur",
+      "status": "planned",
+      "levels": [
+        "ground",
+        "first",
+        "second",
+        "cellar",
+        "basement"
+      ]
+    },
+    {
+      "id": "residences_invites",
+      "status": "planned"
+    },
+    {
+      "id": "lac",
+      "status": "planned"
+    },
+    {
+      "id": "vergers_serre",
+      "status": "planned"
+    },
+    {
+      "id": "maison_futuriste",
+      "status": "planned",
+      "visibility": "hidden_from_rest_of_domain"
+    }
+  ],
+  "portals": [
+    {
+      "id": "village_to_chateau",
+      "from": "village",
+      "to": "chateau_exterieur",
+      "direction": "north",
+      "enabled": false
+    },
+    {
+      "id": "village_to_paroisse",
+      "from": "village",
+      "to": "paroisse",
+      "direction": "south",
+      "enabled": false
+    },
+    {
+      "id": "paroisse_to_village",
+      "from": "paroisse",
+      "to": "village",
+      "direction": "north",
+      "enabled": false
+    },
+    {
+      "id": "chateau_to_village",
+      "from": "chateau_exterieur",
+      "to": "village",
+      "direction": "south",
+      "enabled": false
+    },
+    {
+      "id": "chateau_to_outside",
+      "from": "chateau_exterieur",
+      "to": "outside_domain",
+      "direction": "to_be_surveyed",
+      "enabled": false
+    }
+  ]
+}
