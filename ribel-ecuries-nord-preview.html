@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>RIBEL · Village — refonte graphique 2026-10-13</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Atkinson+Hyperlegible:wght@400;700&family=Martian+Mono:wght@400;600&display=swap">
+<style>
+/* Maquette plein écran : la scène 3D occupe tout l'écran ; instruments en verre d'encre en haut, commandes au pouce en bas. */
+:root {
+  --ink: #14181d;
+  --glass: rgba(20, 24, 29, 0.78);
+  --glass-hi: rgba(38, 44, 52, 0.94);
+  --rule: rgba(236, 230, 218, 0.16);
+  --linen: #ece6da;
+  --linen-dim: #b7b0a3;
+  --woad: #86a9d4;
+  --woad-ink: #0f1a27;
+  --weld: #dfbf5c;
+  --madder: #d9735d;
+  --sage: #9cc28c;
+  --ok-bg: rgba(156, 194, 140, 0.18);
+  --warn-bg: rgba(223, 191, 92, 0.2);
+  --over-bg: rgba(217, 115, 93, 0.22);
+  --font-display: "Alegreya SC", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-ui: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-data: "Martian Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius: 12px;
+  --gutter: 16px;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--ink); color: var(--linen); font: 400 15px/1.4 var(--font-ui); overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+.loading { position: fixed; inset: 0; margin: 0; display: grid; place-items: center; padding-inline: var(--gutter); text-align: center; color: var(--linen-dim); font: 400 13px/1.5 var(--font-data); pointer-events: none; }
+.hud { position: fixed; left: 0; right: 0; z-index: 2; display: flex; gap: 10px; padding-inline: var(--gutter); pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hud-top { top: 0; padding-top: calc(env(safe-area-inset-top, 0px) + 12px); justify-content: space-between; align-items: flex-start; flex-wrap: wrap; }
+.hud-bottom { bottom: 0; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); flex-direction: column; align-items: center; }
+.panel { background: var(--glass); border: 1px solid var(--rule); border-radius: var(--radius); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.brand { padding: 10px 14px; display: grid; gap: 2px; min-width: 0; }
+.eyebrow { margin: 0; font: 600 10.5px/1.3 var(--font-data); letter-spacing: 0.12em; text-transform: uppercase; color: var(--linen-dim); }
+h1 { margin: 0; font: 700 21px/1.1 var(--font-display); letter-spacing: 0.02em; text-wrap: balance; }
+.mode { margin: 0; font-size: 13px; color: var(--linen-dim); }
+.metrics { padding: 10px 14px; display: grid; grid-template-columns: auto auto; column-gap: 16px; row-gap: 3px; align-items: center; font-variant-numeric: tabular-nums; }
+.fps { grid-row: 1 / span 2; display: grid; justify-items: start; gap: 2px; }
+.fps strong { font: 600 32px/1 var(--font-data); }
+.fps small, .budget { font: 400 10.5px/1.3 var(--font-data); color: var(--linen-dim); letter-spacing: 0.04em; }
+.metric { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; font: 400 12px/1.4 var(--font-data); white-space: nowrap; }
+.metric dt { color: var(--linen-dim); }
+.metric dd { margin: 0; display: flex; align-items: center; gap: 6px; }
+.chip { padding: 1px 7px; border-radius: 999px; font: 600 10px/1.6 var(--font-data); letter-spacing: 0.04em; color: var(--linen); background: var(--rule); }
+.chip[data-state="ok"] { color: var(--sage); background: var(--ok-bg); }
+.chip[data-state="warn"] { color: var(--weld); background: var(--warn-bg); }
+.chip[data-state="over"] { color: var(--madder); background: var(--over-bg); }
+.budget { grid-column: 1 / -1; margin: 4px 0 0; }
+.hint { margin: 0; padding: 8px 14px; max-width: 34rem; text-align: center; font-size: 14px; pointer-events: none; text-wrap: balance; }
+.diag { width: min(100%, 46rem); max-height: 46vh; overflow: auto; padding: 12px 14px; display: grid; gap: 10px; }
+.diag h2 { margin: 0; font: 700 16px/1.2 var(--font-display); letter-spacing: 0.03em; }
+.diag h3 { margin: 4px 0 0; font: 600 10.5px/1.3 var(--font-data); letter-spacing: 0.12em; text-transform: uppercase; color: var(--linen-dim); }
+.diag-list { margin: 0; display: grid; gap: 6px; }
+.diag-list div { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 10px; }
+.diag-list dt { color: var(--linen-dim); font-size: 13px; }
+.diag-list dd { margin: 0; font-size: 13.5px; min-width: 0; overflow-wrap: anywhere; }
+#d-xr[data-state="ok"] { color: var(--sage); }
+#d-xr[data-state="blocked"], #d-xr[data-state="no"] { color: var(--weld); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font: 400 12px/1.4 var(--font-data); font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--linen-dim); font-weight: 400; }
+.note { margin: 0; font-size: 12.5px; color: var(--linen-dim); }
+#releve { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--glass-hi); font: 400 11.5px/1.5 var(--font-data); white-space: pre-wrap; overflow-wrap: anywhere; -webkit-user-select: text; user-select: text; }
+.copy-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.status { font-size: 13px; color: var(--sage); }
+.controls { width: min(100%, 46rem); display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; padding: 8px; }
+button { appearance: none; -webkit-appearance: none; min-height: 48px; padding: 8px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; border: 1px solid var(--rule); background: var(--glass-hi); color: var(--linen); font: 700 14px/1.15 var(--font-ui); cursor: pointer; touch-action: manipulation; }
+button svg { flex: none; }
+button:active { transform: translateY(1px); }
+button:focus-visible { outline: 2px solid var(--woad); outline-offset: 2px; }
+button[aria-expanded="true"] { border-color: var(--woad); }
+#vr { background: var(--woad); color: var(--woad-ink); border-color: transparent; }
+#copy { min-height: 40px; }
+body.in-vr .hud { display: none; }
+@media (max-width: 560px) {
+  .controls { grid-auto-flow: row; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .controls button { grid-column: span 2; }
+  .controls #diag-btn { grid-column: 1 / -1; }
+  .controls:has(#vr:not([hidden])) #diag-btn, .controls #vr { grid-column: span 3; }
+  .eyebrow, .budget { display: none; }
+  h1 { font-size: 17px; }
+  .brand, .metrics { padding: 8px 12px; }
+  .fps strong { font-size: 26px; }
+  .hint { font-size: 13px; }
+  .diag-list div { grid-template-columns: 7.5rem minmax(0, 1fr); }
+  th, td { padding: 4px 6px; font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) { button:active { transform: none; } }
+</style>
+
+<canvas id="scene" aria-label="Scène 3D de la place du village : touchez le sol pour vous déplacer"></canvas>
+<p class="loading" id="loading">Chargement de la scène…</p>
+
+<header class="hud hud-top">
+  <div class="brand panel">
+    <p class="eyebrow">Ridel · Lot 0</p>
+    <h1>Banc d'essai</h1>
+    <p class="mode" id="mode">Mode tactile</p>
+  </div>
+  <section class="metrics panel" aria-label="Mesures en direct">
+    <div class="fps"><strong id="fps">--</strong><small>images/s</small></div>
+    <dl class="metric"><dt>appels</dt><dd><span id="calls">--</span><span class="chip" id="calls-chip">--</span></dd></dl>
+    <dl class="metric"><dt>triangles</dt><dd><span id="tris">--</span><span class="chip" id="tris-chip">--</span></dd></dl>
+    <p class="budget">Budget de départ Quest 2, par œil : 72 i/s · 100 appels · 300 k triangles</p>
+  </section>
+</header>
+
+<div class="hud hud-bottom">
+  <p class="hint panel" id="hint">Touchez le sol pour vous téléporter · glissez pour regarder</p>
+  <section class="diag panel" id="diag" hidden aria-label="Diagnostic">
+    <h2>Diagnostic</h2>
+    <dl class="diag-list">
+      <div><dt>Navigateur</dt><dd id="d-browser">…</dd></div>
+      <div><dt>Écran</dt><dd id="d-screen">…</dd></div>
+      <div><dt>Graphismes</dt><dd id="d-webgl">…</dd></div>
+      <div><dt>Réalité virtuelle</dt><dd id="d-xr">vérification…</dd></div>
+      <div><dt>Moteur 3D</dt><dd id="d-three">…</dd></div>
+    </dl>
+    <h3>Relevé</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Support</th><th>i/s moy.</th><th>i/s min.</th><th>Appels</th><th>Triangles</th></tr></thead>
+        <tbody id="readings"></tbody>
+      </table>
+    </div>
+    <p class="note">Mesures du décor seul : la place de 80 m, ses façades, la fontaine, l'église Saint-Michel au nord, le monastère et son cimetière au sud. Comptez quelques secondes avant de lire la moyenne.</p>
+    <pre id="releve"></pre>
+    <div class="copy-row"><button id="copy" type="button">Copier le relevé</button><span class="status" id="copy-status" role="status"></span></div>
+  </section>
+  <nav class="controls panel" aria-label="Commandes">
+    <button id="turn-left" type="button" aria-label="Tourner de 45 degrés à gauche"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg>45°</button>
+    <button id="turn-back" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 21V10a5 5 0 0 1 10 0v5"/><polyline points="13 12 17 16 21 12"/></svg>Demi-tour</button>
+    <button id="turn-right" type="button" aria-label="Tourner de 45 degrés à droite">45°<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg></button>
+    <button id="diag-btn" type="button" aria-expanded="false" aria-controls="diag">Diagnostic</button>
+    <button id="vr" type="button" hidden>Entrer en VR</button>
+  </nav>
+</div>
+
+<script type="module">
+const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
+const $ = (id) => document.getElementById(id);
+let THREE = null;
+try {
+  THREE = await import(THREE_URL);
+} catch (err) {
+  $('loading').textContent = "La bibliothèque 3D ne s'est pas chargée. Vérifiez la connexion, puis rechargez la page.";
+}
+if (THREE) main(THREE);
+
+function main(THREE) {
+  // ---------- Réglages du monde (mètres) ----------
+  const SQUARE_A = 40, SQUARE_B = 14;                  // place ovale : 80 m × 28 m (longueur doublée)
+  const FACADE_A = SQUARE_A + 1, FACADE_B = SQUARE_B + 1;
+  const FOUNTAIN_R = 3.4;
+  const STREET_HALF = 2.4, STREET_LEN = 20;
+  const EYE = 1.6;
+  const PHONE_MAX = 25;                                 // portée d'une téléportation au doigt
+  const ARC_SPEED = 8;                                  // vitesse initiale de l'arc en VR (m/s)
+  const SNAP = Math.PI / 4;
+  const LOOK_K = 0.0045;
+  const BUDGET = { fps: 72, calls: 100, tris: 300000 };
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const ACCENT = new THREE.Color(css('--woad') || '#86a9d4');
+  const DANGER = new THREE.Color(css('--madder') || '#d9735d');
+
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rnd = mulberry32(1500);
+
+  // ---------- Moteur ----------
+  const canvas = $('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+  renderer.xr.setFoveation(1);
+
+  const FOG = 0xd9ddd6;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(FOG);
+  scene.fog = new THREE.Fog(FOG, 80, 480);
+
+  const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 1600);
+  camera.position.set(0, EYE, 0);
+  let pitch = -0.04;
+  camera.rotation.x = pitch;
+  const rig = new THREE.Group();
+  rig.position.set(-30, 0, 0);          // extrémité ouest de la place
+  rig.rotation.y = -Math.PI / 2;        // regard vers l'est, dans la longueur
+  rig.add(camera);
+  scene.add(rig);
+
+  // Ciel en dégradé, raccordé au brouillard à l'horizon
+  {
+    const geo = new THREE.SphereGeometry(1000, 32, 16);
+    const pos = geo.attributes.position;
+    const cols = new Float32Array(pos.count * 3);
+    const zen = new THREE.Color(0x8ea8c3), hor = new THREE.Color(FOG), c = new THREE.Color();
+    for (let i = 0; i < pos.count; i++) {
+      const t = Math.max(0, pos.getY(i) / 1000);
+      c.copy(hor).lerp(zen, Math.pow(t, 0.55));
+      cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b;
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+    const sky = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false }));
+    sky.renderOrder = -1;
+    scene.add(sky);
+  }
+
+  scene.add(new THREE.HemisphereLight(0xe9eef3, 0x8b8572, 1.4));
+  const sun = new THREE.DirectionalLight(0xfff0d8, 2.2);
+  sun.position.set(-55, 90, 45);
+  scene.add(sun);
+
+  // ---------- Textures dessinées ----------
+  function canvasTex(w, h, draw, opts = {}) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c);
+    if (opts.srgb !== false) t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    if (opts.repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(opts.repeat, opts.repeat); }
+    return t;
+  }
+  function rr(g, x, y, w, h, r) {
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h);
+  }
+
+  const cobbleTex = canvasTex(512, 512, (g, W, H) => {
+    g.fillStyle = '#9d9587'; g.fillRect(0, 0, W, H);
+    const rows = 16, rh = H / rows;
+    for (let r = 0; r < rows; r++) {
+      let x = -(r % 2) * rh * 0.5 - rnd() * rh * 0.3;
+      while (x < W) {
+        const w = rh * (0.75 + rnd() * 0.6);
+        const s = 188 + Math.floor(rnd() * 38);
+        g.fillStyle = `rgb(${s}, ${s - 5}, ${s - 15})`;
+        for (const dx of [0, -W, W]) {
+          const xx = x + dx;
+          if (xx + w < 0 || xx > W) continue;
+          rr(g, xx + 2, r * rh + 2, w - 4, rh - 4, 7); g.fill();
+        }
+        x += w;
+      }
+    }
+  }, { repeat: 1 / 3.2 });
+
+  const lowerTex = canvasTex(256, 256, (g, W, H) => {
+    g.fillStyle = '#c7b99f'; g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(79, 67, 52, 0.33)'; g.lineWidth = 2;
+    for (let y = 46; y <= H; y += 30) {
+      g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke();
+      const off = ((y - 46) / 30) % 2 ? 0 : 24;
+      for (let x = off; x < W; x += 48) { g.beginPath(); g.moveTo(x, y - 30); g.lineTo(x, y); g.stroke(); }
+    }
+    g.fillStyle = '#6a5c4e'; g.fillRect(0, 0, W, 16);
+    g.fillStyle = '#3b3029';
+    g.beginPath(); g.moveTo(24, H); g.lineTo(24, 130); g.quadraticCurveTo(57, 88, 90, 130); g.lineTo(90, H); g.closePath(); g.fill();
+    g.fillStyle = '#2f2b29'; g.fillRect(128, 104, 104, 92);
+    g.fillStyle = '#6a5c4e'; g.fillRect(122, 92, 116, 12);
+    g.fillStyle = '#7d6a55'; g.fillRect(122, 196, 116, 14);
+  });
+
+  const upperTex = canvasTex(256, 256, (g, W, H) => {
+    const T = '#594435';
+    g.fillStyle = '#e1d1b4'; g.fillRect(0, 0, W, H);
+    g.fillStyle = T;
+    g.fillRect(0, 0, W, 14); g.fillRect(0, H - 16, W, 16);
+    g.fillRect(0, 0, 14, H); g.fillRect(W - 14, 0, 14, H);
+    g.fillRect(W / 2 - 7, 0, 14, H);
+    g.fillRect(0, 150, W, 10);
+    for (const x0 of [34, 162]) {
+      g.fillStyle = '#2b2a2b'; g.fillRect(x0, 54, 60, 92);
+      g.fillStyle = T; g.fillRect(x0 + 27, 54, 6, 92); g.fillRect(x0, 92, 60, 6);
+    }
+    g.strokeStyle = T; g.lineWidth = 10;
+    for (const [a, b] of [[14, 121], [135, 242]]) {
+      g.beginPath(); g.moveTo(a, 160); g.lineTo(b, H - 16); g.moveTo(b, 160); g.lineTo(a, H - 16); g.stroke();
+    }
+    for (const x of [62, 190]) g.fillRect(x - 4, 14, 8, 40);
+  });
+
+  const rippleTex = canvasTex(256, 256, (g, W, H) => {
+    g.fillStyle = '#7e9eb0'; g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(235, 244, 248, 0.35)'; g.lineWidth = 3;
+    for (let i = 0; i < 9; i++) {
+      g.beginPath();
+      g.arc(W / 2 + (rnd() - 0.5) * 30, H / 2 + (rnd() - 0.5) * 30, 14 + i * 14, rnd() * 3, rnd() * 3 + 3.5);
+      g.stroke();
+    }
+  });
+  rippleTex.center.set(0.5, 0.5);
+
+  const M = {
+    ground: new THREE.MeshLambertMaterial({ color: 0x849778 }),
+    paving: new THREE.MeshLambertMaterial({ map: cobbleTex, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 }),
+    band: new THREE.MeshLambertMaterial({ color: 0xb3ab9c, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }),
+    stone: new THREE.MeshLambertMaterial({ color: 0xc6b8a0 }),
+    graveStone: new THREE.MeshLambertMaterial({ color: 0xa9a294 }),
+    basin: new THREE.MeshLambertMaterial({ color: 0xd1c9ba, side: THREE.DoubleSide }),
+    lower: new THREE.MeshLambertMaterial({ map: lowerTex }),
+    upper: new THREE.MeshLambertMaterial({ map: upperTex }),
+    roof: new THREE.MeshLambertMaterial({ color: 0x4c5360 }),
+    gable: new THREE.MeshLambertMaterial({ color: 0xd6c3a4 }),
+    water: new THREE.MeshLambertMaterial({ map: rippleTex, transparent: true, opacity: 0.9 }),
+    hill: new THREE.MeshLambertMaterial({ color: 0x9ea48a }),
+    forest: new THREE.MeshLambertMaterial({ color: 0x6d7b61, flatShading: true }),
+  };
+
+  const dummy = new THREE.Object3D();
+  const unitBox = new THREE.BoxGeometry(1, 1, 1);
+  unitBox.translate(0, 0.5, 0);
+  const prism = (() => {
+    const A = [-0.5, 0, 0.5], B = [0.5, 0, 0.5], C = [0, 1, 0.5], D = [-0.5, 0, -0.5], E = [0.5, 0, -0.5], F = [0, 1, -0.5];
+    const tris = [A, B, C, D, F, E, A, C, F, A, F, D, B, E, F, B, F, C];
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
+    g.computeVertexNormals();
+    g.addGroup(6, 12, 0);   // pentes : toiture
+    g.addGroup(0, 6, 1);    // pignons : enduit
+    return g;
+  })();
+  const placeBox = (mesh, i, x, y, z, sx, sy, sz, yaw = 0) => {
+    dummy.position.set(x, y, z); dummy.rotation.set(0, yaw, 0); dummy.scale.set(sx, sy, sz); dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+  };
+
+  // ---------- Sol, place ovale, rues ----------
+  // Sol découpé en cases de 20 m, posé 2 cm sous le pavage : un plan d'un seul tenant
+  // fausse la profondeur près de l'œil et masque le pavage.
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400, 70, 70), M.ground);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.02;
+  scene.add(ground);
+
+  const rectShape = (x0, y0, x1, y1) => {
+    const s = new THREE.Shape();
+    s.moveTo(x0, y0); s.lineTo(x1, y0); s.lineTo(x1, y1); s.lineTo(x0, y1); s.closePath();
+    return s;
+  };
+  // Formes dans le plan (x, y) ; après bascule, y devient -z.
+  const ovalShape = new THREE.Shape();
+  ovalShape.absellipse(0, 0, FACADE_A + 0.2, FACADE_B + 0.2, 0, Math.PI * 2, false, 0);
+  const pavingGeo = new THREE.ShapeGeometry([
+    ovalShape,
+    rectShape(FACADE_A - 2, -STREET_HALF, FACADE_A + STREET_LEN + 2, STREET_HALF),
+    rectShape(-(FACADE_A + STREET_LEN + 2), -STREET_HALF, -(FACADE_A - 2), STREET_HALF),
+    rectShape(-STREET_HALF, FACADE_B - 2, STREET_HALF, FACADE_B + STREET_LEN + 1),
+    rectShape(-STREET_HALF, -(FACADE_B + STREET_LEN + 2), STREET_HALF, -(FACADE_B - 2)),
+  ], 128);
+  pavingGeo.rotateX(-Math.PI / 2);
+  const paving = new THREE.Mesh(pavingGeo, M.paving);
+  paving.position.y = 0.012;
+  scene.add(paving);
+
+  const bandShape = new THREE.Shape();
+  bandShape.absellipse(0, 0, SQUARE_A + 0.45, SQUARE_B + 0.45, 0, Math.PI * 2, false, 0);
+  const bandHole = new THREE.Path();
+  bandHole.absellipse(0, 0, SQUARE_A, SQUARE_B, 0, Math.PI * 2, true, 0);
+  bandShape.holes.push(bandHole);
+  const fBand = new THREE.Shape();
+  fBand.absarc(0, 0, FOUNTAIN_R + 0.65, 0, Math.PI * 2, false);
+  const fHole = new THREE.Path();
+  fHole.absarc(0, 0, FOUNTAIN_R - 0.1, 0, Math.PI * 2, true);
+  fBand.holes.push(fHole);
+  const bandGeo = new THREE.ShapeGeometry([bandShape, fBand], 128);
+  bandGeo.rotateX(-Math.PI / 2);
+  const bands = new THREE.Mesh(bandGeo, M.band);
+  bands.position.y = 0.02;
+  scene.add(bands);
+
+  // ---------- Maisons à pans de bois (pignon sur rue, étages en encorbellement) ----------
+  const TINTS = [0xe9dcc4, 0xe3cba6, 0xdac6b2, 0xc8c3af, 0xf1e3c9];
+  const houses = [];
+  const addHouse = (x, z, yaw, w, d, stories) => houses.push({ x, z, yaw, w, d, stories, tint: TINTS[Math.floor(rnd() * TINTS.length)] });
+  const inStreetGap = (x, z) =>
+    (Math.abs(z) < STREET_HALF + 0.5 && Math.abs(x) > FACADE_A - 4) ||
+    (Math.abs(x) < STREET_HALF + 0.5 && Math.abs(z) > FACADE_B - 4);
+  {
+    const N = 4096, pts = [], cum = [0];
+    let L = 0;
+    for (let i = 0; i <= N; i++) {
+      const t = (i / N) * Math.PI * 2;
+      pts.push([FACADE_A * Math.cos(t), FACADE_B * Math.sin(t)]);
+      if (i > 0) { L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); cum.push(L); }
+    }
+    const at = (s) => {
+      s = ((s % L) + L) % L;
+      let lo = 0, hi = N;
+      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (cum[mid] <= s) lo = mid; else hi = mid; }
+      const k = (s - cum[lo]) / Math.max(1e-6, cum[hi] - cum[lo]);
+      return [pts[lo][0] + (pts[hi][0] - pts[lo][0]) * k, pts[lo][1] + (pts[hi][1] - pts[lo][1]) * k];
+    };
+    // Tronçons de façade entre deux débouchés de rue, chacun divisé exactement en maisons : aucun trou.
+    const arcs = [];
+    let start = null;
+    for (let s = 0; s <= L; s += 0.1) {
+      const free = !inStreetGap(...at(s));
+      if (free && start === null) start = s;
+      if (!free && start !== null) { arcs.push([start, s - 0.1]); start = null; }
+    }
+    if (start !== null) arcs.push([start, L]);
+    for (const [s0, s1] of arcs) {
+      const len = s1 - s0;
+      if (len < 3) continue;
+      const count = Math.max(1, Math.round(len / 6.2));
+      const parts = Array.from({ length: count }, () => 0.8 + rnd() * 0.4);
+      const total = parts.reduce((x, y) => x + y, 0);
+      let s = s0;
+      for (const part of parts) {
+        const w = (part / total) * len;
+        const a = at(s), b = at(s + w), m = at(s + w / 2);
+        let ux = b[0] - a[0], uz = b[1] - a[1];
+        const cl = Math.hypot(ux, uz); ux /= cl; uz /= cl;
+        let nx = uz, nz = -ux;
+        if (nx * m[0] + nz * m[1] < 0) { nx = -nx; nz = -nz; }
+        const d = 7.5 + rnd() * 1.5;
+        houses.push({
+          x: (a[0] + b[0]) / 2 + nx * d / 2, z: (a[1] + b[1]) / 2 + nz * d / 2,
+          yaw: Math.atan2(-nx, -nz), w: cl, d, stories: rnd() < 0.55 ? 2 : 1,
+          tint: TINTS[Math.floor(rnd() * TINTS.length)],
+        });
+        s += w;
+      }
+    }
+  }
+  const side = STREET_HALF + 0.3;
+  for (const sgn of [1, -1]) {                       // rues est et ouest, fermées par une maison
+    const x0 = sgn * (FACADE_A + 13);
+    addHouse(x0, -(side + 4), 0, 9, 8, 2);
+    addHouse(x0, side + 4, Math.PI, 9, 8, 1);
+    addHouse(sgn * (FACADE_A + STREET_LEN + 4.5), 0, sgn > 0 ? -Math.PI / 2 : Math.PI / 2, 10, 8, 2);
+  }
+  for (const sgn of [1, -1]) {                       // rues sud et nord : l'église au nord, le cimetière au sud
+    const z0 = sgn * (FACADE_B + 13);
+    addHouse(-(side + 4), z0, Math.PI / 2, 9, 8, 2);
+    addHouse(side + 4, z0, -Math.PI / 2, 9, 8, 1);
+  }
+
+  const G_H = 3.0, S_H = 2.7, JETTY = 0.35;
+  const nUpper = houses.reduce((n, h) => n + h.stories, 0);
+  const lowerMesh = new THREE.InstancedMesh(unitBox, M.lower, houses.length);
+  const upperMesh = new THREE.InstancedMesh(unitBox, M.upper, nUpper);
+  const roofMesh = new THREE.InstancedMesh(prism, [M.roof, M.gable], houses.length);
+  {
+    const tint = new THREE.Color();
+    let ui = 0;
+    houses.forEach((h, i) => {
+      const fx = Math.sin(h.yaw), fz = Math.cos(h.yaw);
+      placeBox(lowerMesh, i, h.x, -0.1, h.z, h.w, G_H + 0.1, h.d, h.yaw);
+      for (let k = 1; k <= h.stories; k++) {
+        placeBox(upperMesh, ui, h.x + fx * JETTY * k, G_H + (k - 1) * S_H, h.z + fz * JETTY * k, h.w, S_H, h.d, h.yaw);
+        upperMesh.setColorAt(ui, tint.setHex(h.tint));
+        ui++;
+      }
+      const shift = JETTY * h.stories;
+      placeBox(roofMesh, i, h.x + fx * shift, G_H + h.stories * S_H, h.z + fz * shift, h.w + 0.5, h.w * 0.68, h.d + 0.6, h.yaw);
+    });
+    for (const m of [lowerMesh, upperMesh, roofMesh]) { m.instanceMatrix.needsUpdate = true; m.computeBoundingSphere(); }
+    upperMesh.instanceColor.needsUpdate = true;
+    scene.add(lowerMesh, upperMesh, roofMesh);
+  }
+  // Détails architecturaux non destructifs : réutilisent EXACTEMENT les maisons
+  // et leurs implantations existantes. Les collisions et commandes restent inchangées.
+  // Instancing : quatre types de détails, un nombre limité de draw calls sur Quest 2.
+  {
+    const chimneyMat = new THREE.MeshLambertMaterial({ color: 0x9c8d79 });
+    const woodMat = new THREE.MeshLambertMaterial({ color: 0x514034 });
+    const windowMat = new THREE.MeshLambertMaterial({ color: 0x414c4b });
+    const chimney = new THREE.InstancedMesh(unitBox, chimneyMat, houses.length);
+    const door = new THREE.InstancedMesh(unitBox, woodMat, houses.length);
+    const windowMesh = new THREE.InstancedMesh(unitBox, windowMat, houses.length * 2);
+    const sill = new THREE.InstancedMesh(unitBox, M.stone, houses.length * 2);
+    let ci = 0, di = 0, wi = 0;
+    houses.forEach((h, i) => {
+      const fx = Math.sin(h.yaw), fz = Math.cos(h.yaw);
+      const rx = Math.cos(h.yaw), rz = -Math.sin(h.yaw);
+      const frontX = h.x + fx * (h.d / 2 + 0.09);
+      const frontZ = h.z + fz * (h.d / 2 + 0.09);
+      const top = G_H + h.stories * S_H;
+      // Souches de cheminée en pierre, décalées et non uniformes.
+      if (i % 3 !== 1) {
+        const cx = h.x + rx * (h.w * 0.24) - fx * (h.d * 0.15);
+        const cz = h.z + rz * (h.w * 0.24) - fz * (h.d * 0.15);
+        placeBox(chimney, ci++, cx, top + h.w * 0.48, cz, 0.72, 1.5, 0.78, h.yaw);
+      }
+      // Porte en bois ; fenêtres sombres à l'étage, avec appuis en calcaire.
+      placeBox(door, di++, frontX - rx * (h.w * 0.19), 0.03, frontZ - rz * (h.w * 0.19), 1.05, 2.2, 0.13, h.yaw);
+      for (const side of [-1, 1]) {
+        const wx = frontX + rx * side * (h.w * 0.21) + fx * JETTY * h.stories;
+        const wz = frontZ + rz * side * (h.w * 0.21) + fz * JETTY * h.stories;
+        placeBox(windowMesh, wi, wx, G_H + 0.7, wz, 0.68, 1.05, 0.13, h.yaw);
+        placeBox(sill, wi, wx, G_H + 0.64, wz, 0.9, 0.14, 0.3, h.yaw);
+        wi++;
+      }
+    });
+    chimney.count = ci; door.count = di; windowMesh.count = wi; sill.count = wi;
+    for (const mesh of [chimney, door, windowMesh, sill]) {
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.computeBoundingSphere();
+      scene.add(mesh);
+    }
+  }
+  const obstacles = [lowerMesh, upperMesh, roofMesh];
+
+  // ---------- Église Saint-Michel au bout de la rue nord ----------
+  {
+    const cz = -(FACADE_B + STREET_LEN + 5.5);
+    const nave = new THREE.Mesh(unitBox, M.stone); nave.scale.set(24, 12, 11); nave.position.set(2, 0, cz);
+    const naveRoof = new THREE.Mesh(prism, [M.roof, M.gable]); naveRoof.rotation.y = Math.PI / 2; naveRoof.scale.set(11.6, 7.5, 24.6); naveRoof.position.set(2, 12, cz);
+    const tower = new THREE.Mesh(unitBox, M.stone); tower.scale.set(6.5, 27, 6.5); tower.position.set(-13.5, 0, cz);
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(4.9, 15, 4), M.roof); spire.rotation.y = Math.PI / 4; spire.position.set(-13.5, 34.5, cz);
+    scene.add(nave, naveRoof, tower, spire);
+    obstacles.push(nave, naveRoof, tower, spire);
+  }
+
+  // Écuries RIBEL au nord-est de Saint-Michel : maquette 3D d'implantation.
+  // La modélisation détaillée V53 est conservée dans sa page indépendante.
+  const STABLE_X=43, STABLE_Z=-83;
+  const stableGroup=new THREE.Group();stableGroup.position.set(STABLE_X,0,STABLE_Z);scene.add(stableGroup);
+  const sm={stone:new THREE.MeshLambertMaterial({color:0xbba88c}),wood:new THREE.MeshLambertMaterial({color:0x64462f}),roof:new THREE.MeshLambertMaterial({color:0x46525c,side:THREE.DoubleSide}),iron:new THREE.MeshLambertMaterial({color:0x343638}),floor:new THREE.MeshLambertMaterial({color:0x9c9080})};
+  function stableBox(w,h,d,x,y,z,m){
+    const o=new THREE.Mesh(unitBox,m);o.scale.set(w,h,d);o.position.set(x,y,z);stableGroup.add(o);return o;
+  }
+  function stableRoof(x0,x1,z0,z1,y0,y1){
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.Float32BufferAttribute([x0,y0,z0,x1,y0,z0,x1,y1,z1,x0,y0,z0,x1,y1,z1,x0,y1,z1],3));
+    g.computeVertexNormals();stableGroup.add(new THREE.Mesh(g,sm.roof));
+  }
+  stableBox(60,.08,60,0,.01,0,sm.floor);
+  // Corps nord : six boxes fermés, faîtage et deux versants.
+  stableBox(38,5.4,.5,0,2.7,-22,sm.stone);
+  for(let i=0;i<7;i++)stableBox(.34,4.5,.4,-18+i*6,2.3,-10.8,sm.wood);
+  for(let i=0;i<6;i++){
+    const x=-15+i*6;stableBox(5.2,2.9,.23,x,1.55,-10.6,sm.wood);
+    for(const y of [.8,2.2])stableBox(5.0,.11,.28,x,y,-10.43,sm.iron);
+  }
+  stableRoof(-19,19,-23,-16,5.2,9.3);stableRoof(-19,19,-16,-9,9.3,5.2);
+  // Remise ouest, quatre boxes de jour à l'est.
+  for(const side of [-1,1]){
+    stableBox(.5,5.1,28,side*26,2.55,0,sm.stone);
+    for(const z of [-14,-7,0,7,14])stableBox(.38,4.6,.38,side*19,2.3,z,sm.wood);
+    stableRoof(side===-1?-27:18,side===-1?-22:22,-15,15,5.1,7.2);
+    stableRoof(side===-1?-22:22,side===-1?-18:27,-15,15,7.2,5.1);
+  }
+  for(const z of [-10.5,-3.5,3.5,10.5]){
+    stableBox(.24,1.6,6.2,18.7,1.0,z,sm.wood);
+    for(let k=0;k<9;k++)stableBox(.055,.75,.055,18.62,2.2,z-2.75+k*.69,sm.iron);
+  }
+  // Logis au sud-est, enceinte et ouverture du portail vers le chemin.
+  stableBox(7.8,4.9,10,22,2.45,20,sm.stone);
+  stableBox(1.8,2.8,.15,20.4,1.4,25.12,sm.wood);
+  stableRoof(17.4,22,14.5,25.5,4.9,7.7);stableRoof(22,26.6,14.5,25.5,7.7,4.9);
+  for(const x of [-17,17])stableBox(25,1.7,.5,x,.85,29.5,sm.stone);
+  for(const x of [-29.5,29.5])stableBox(.5,1.7,59,x,.85,0,sm.stone);
+  for(const x of [-4.5,4.5])stableBox(.75,2.6,.75,x,1.3,29.5,sm.stone);
+  // Chemin d'accès desservant le portail, contournant l'église par l'est.
+  const pathMat=new THREE.MeshLambertMaterial({color:0x8e816d});
+  function stablePath(x0,z0,x1,z1){
+    const dx=x1-x0,dz=z1-z0,len=Math.hypot(dx,dz);
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(4.8,len),pathMat);
+    m.rotation.x=-Math.PI/2;m.rotation.z=Math.atan2(dx,dz);
+    m.position.set((x0+x1)/2,.065,(z0+z1)/2);scene.add(m);
+  }
+  stablePath(4,-32,23,-49);stablePath(23,-49,43,-53);
+
+  // ---------- Au sud du village : cimetière clos et monastère ----------
+  {
+    const cz = FACADE_B + STREET_LEN + 12;          // centre du cimetière, au bout de la rue sud
+    const CW = 26, CD = 18, CH = 1.8, CT = 0.5, GATE = 3.2;
+    const seg = CW / 2 - GATE / 2;
+    const walls = new THREE.InstancedMesh(unitBox, M.stone, 7);
+    placeBox(walls, 0, -(GATE / 2 + seg / 2), 0, cz - CD / 2, seg, CH, CT);
+    placeBox(walls, 1, GATE / 2 + seg / 2, 0, cz - CD / 2, seg, CH, CT);
+    placeBox(walls, 2, 0, 0, cz + CD / 2, CW, CH, CT);
+    placeBox(walls, 3, -CW / 2, 0, cz, CT, CH, CD);
+    placeBox(walls, 4, CW / 2, 0, cz, CT, CH, CD);
+    placeBox(walls, 5, -(GATE / 2 + 0.35), 0, cz - CD / 2, 0.7, 2.7, 0.7);   // piliers du portail
+    placeBox(walls, 6, GATE / 2 + 0.35, 0, cz - CD / 2, 0.7, 2.7, 0.7);
+    walls.instanceMatrix.needsUpdate = true; walls.computeBoundingSphere();
+
+    const stones = new THREE.InstancedMesh(unitBox, M.graveStone, 26);
+    let n = 0;
+    for (let ix = 0; ix < 6; ix++) {
+      for (let iz = 0; iz < 4; iz++) {
+        const x = -10 + ix * 4 + (rnd() - 0.5) * 0.8, z = cz - 4.5 + iz * 3.4;
+        if (Math.abs(x) < 1.6) continue;                // allée centrale
+        placeBox(stones, n++, x, 0, z, 0.55, 0.8 + rnd() * 0.3, 0.14, (rnd() - 0.5) * 0.15);
+      }
+    }
+    placeBox(stones, n++, 0, 0, cz + 2, 0.22, 3, 0.22);   // croix centrale
+    placeBox(stones, n++, 0, 2.05, cz + 2, 1.3, 0.22, 0.22);
+    stones.count = n;
+    stones.instanceMatrix.needsUpdate = true; stones.computeBoundingSphere();
+
+    const mz = cz + CD / 2 + 12;                    // chapelle du monastère, orientée est-ouest
+    const chapel = new THREE.Mesh(unitBox, M.stone); chapel.scale.set(22, 10, 9); chapel.position.set(0, 0, mz);
+    const chapelRoof = new THREE.Mesh(prism, [M.roof, M.gable]); chapelRoof.rotation.y = Math.PI / 2; chapelRoof.scale.set(9.6, 6, 22.6); chapelRoof.position.set(0, 10, mz);
+    const bell = new THREE.Mesh(unitBox, M.stone); bell.scale.set(4.5, 17, 4.5); bell.position.set(-12.5, 0, mz);
+    const bellTop = new THREE.Mesh(new THREE.ConeGeometry(3.4, 8, 4), M.roof); bellTop.rotation.y = Math.PI / 4; bellTop.position.set(-12.5, 21, mz);
+    const eastRange = new THREE.Mesh(unitBox, M.stone); eastRange.scale.set(8, 7, 24); eastRange.position.set(16, 0, mz + 10);
+    const eastRoof = new THREE.Mesh(prism, [M.roof, M.gable]); eastRoof.scale.set(8.6, 4, 24.6); eastRoof.position.set(16, 7, mz + 10);
+    const southRange = new THREE.Mesh(unitBox, M.stone); southRange.scale.set(30, 7, 8); southRange.position.set(2, 0, mz + 21);
+    const southRoof = new THREE.Mesh(prism, [M.roof, M.gable]); southRoof.rotation.y = Math.PI / 2; southRoof.scale.set(8.6, 4, 30.6); southRoof.position.set(2, 7, mz + 21);
+    scene.add(walls, stones, chapel, chapelRoof, bell, bellTop, eastRange, eastRoof, southRange, southRoof);
+    obstacles.push(walls, stones, chapel, chapelRoof, bell, bellTop);
+  }
+
+  // ---------- Horizon : château aux tourelles coniques, collines, massifs boisés ----------
+  {
+    const g = new THREE.Group();
+    g.position.set(150, 0, -250); g.rotation.y = -0.4;
+    const body = new THREE.Mesh(unitBox, M.stone); body.scale.set(34, 15, 12);
+    const roof = new THREE.Mesh(prism, [M.roof, M.gable]); roof.rotation.y = Math.PI / 2; roof.scale.set(12.6, 8, 34.6); roof.position.y = 15;
+    g.add(body, roof);
+    for (const sx of [-1, 1]) {
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 4.6, 21, 16), M.stone); t.position.set(sx * 17, 10.5, 6);
+      const c = new THREE.Mesh(new THREE.ConeGeometry(5.4, 11, 16), M.roof); c.position.set(sx * 17, 26.5, 6);
+      g.add(t, c);
+    }
+    scene.add(g);
+
+    const hills = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), M.hill, 14);
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2 + rnd() * 0.3, r = 380 + rnd() * 160;
+      dummy.position.set(Math.cos(a) * r, -4, Math.sin(a) * r);
+      dummy.rotation.set(0, rnd() * Math.PI, 0);
+      dummy.scale.set(120 + rnd() * 120, 28 + rnd() * 30, 90 + rnd() * 80);
+      dummy.updateMatrix(); hills.setMatrixAt(i, dummy.matrix);
+    }
+    hills.computeBoundingSphere();
+    scene.add(hills);
+
+    const trees = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0), M.forest, 220);
+    let n = 0;
+    for (const [cx, cz] of [[-200, -120], [-230, 60], [140, 170], [230, -60], [-80, 230], [60, -200]]) {
+      for (let k = 0; k < 36 && n < 220; k++) {
+        const s = 5 + rnd() * 6;
+        dummy.position.set(cx + (rnd() - 0.5) * 90, s * 0.7, cz + (rnd() - 0.5) * 70);
+        dummy.rotation.set(0, rnd() * 6, 0);
+        dummy.scale.set(s, s * (1.1 + rnd() * 0.4), s);
+        dummy.updateMatrix(); trees.setMatrixAt(n++, dummy.matrix);
+      }
+    }
+    trees.count = n;
+    trees.computeBoundingSphere();
+    scene.add(trees);
+  }
+
+  // ---------- Fontaine centrale ----------
+  const fountain = new THREE.Group();
+  scene.add(fountain);
+  const DROPS = 220;
+  const dropPos = new Float32Array(DROPS * 3);
+  const dropSeed = Array.from({ length: DROPS }, () => ({ a: rnd() * Math.PI * 2, ph: rnd(), v: 0.55 + rnd() * 0.25 }));
+  const dropGeo = new THREE.BufferGeometry();
+  dropGeo.setAttribute('position', new THREE.BufferAttribute(dropPos, 3));
+  {
+    const prof = [[0, 0.14], [2.62, 0.14], [2.62, 0.2], [2.78, 0.66], [3.18, 0.66], [3.3, 0.54], [3.24, 0]].map(([r, y]) => new THREE.Vector2(r, y));
+    const basin = new THREE.Mesh(new THREE.LatheGeometry(prof, 48), M.basin);
+    const water = new THREE.Mesh(new THREE.CircleGeometry(2.64, 48).rotateX(-Math.PI / 2), M.water); water.position.y = 0.5;
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.75, 0.7, 20), M.stone); ped.position.y = 0.45;
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.32, 1.35, 20), M.stone); shaft.position.y = 1.45;
+    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 0.42, 0.38, 32), M.stone); bowl.position.y = 2.2;
+    const bowlWater = new THREE.Mesh(new THREE.CircleGeometry(0.95, 32).rotateX(-Math.PI / 2), M.water); bowlWater.position.y = 2.37;
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), M.stone); finial.position.y = 2.62;
+    const pine = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.42, 12), M.stone); pine.position.y = 2.95;
+    const drops = new THREE.Points(dropGeo, new THREE.PointsMaterial({ color: 0xeef4f6, size: 0.045, transparent: true, opacity: 0.85, depthWrite: false }));
+    drops.frustumCulled = false;
+    fountain.add(basin, water, ped, shaft, bowl, bowlWater, finial, pine, drops);
+    obstacles.push(basin, ped, shaft, bowl, finial, pine);
+  }
+  function updateDrops(time) {
+    const T = 0.62;
+    for (let i = 0; i < DROPS; i++) {
+      const s = dropSeed[i];
+      const t = ((time / T + s.ph) % 1) * T;
+      const r = 1.08 + s.v * t;
+      dropPos[i * 3] = Math.cos(s.a) * r;
+      dropPos[i * 3 + 1] = Math.max(0.5, 2.36 - 4.9 * t * t);
+      dropPos[i * 3 + 2] = Math.sin(s.a) * r;
+    }
+    dropGeo.attributes.position.needsUpdate = true;
+  }
+
+  // ---------- Zone praticable ----------
+  function isWalkable(x, z) {
+    if (Math.hypot(x, z) < FOUNTAIN_R + 0.3) return false;
+    const ia = FACADE_A - 0.6, ib = FACADE_B - 0.6;
+    if ((x * x) / (ia * ia) + (z * z) / (ib * ib) <= 1) return true;
+    const eastWest = Math.abs(z) < STREET_HALF - 0.4 && Math.abs(x) <= FACADE_A + STREET_LEN - 0.6;
+    const northSouth = Math.abs(x) < STREET_HALF - 0.4 && Math.abs(z) <= FACADE_B + STREET_LEN - 0.6;
+    const yard=x>STABLE_X-28&&x<STABLE_X+28&&z>STABLE_Z-28&&z<STABLE_Z+28;
+    const nearSegment=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));return Math.hypot(x-ax-t*dx,z-az-t*dz)<3;};
+    return eastWest||northSouth||yard||nearSegment(4,-32,23,-49)||nearSegment(23,-49,43,-53);
+  }
+
+  // ---------- Repère de téléportation, arc en pointillé, fondu ----------
+  const markerMat = new THREE.MeshBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.95, depthTest: false, depthWrite: false, fog: false });
+  const marker = new THREE.Group();
+  const markerRing = new THREE.Mesh(new THREE.RingGeometry(0.26, 0.36, 40).rotateX(-Math.PI / 2), markerMat);
+  const arrowShape = new THREE.Shape();
+  arrowShape.moveTo(0, 0.78); arrowShape.lineTo(0.16, 0.48); arrowShape.lineTo(-0.16, 0.48); arrowShape.closePath();
+  const markerArrow = new THREE.Mesh(new THREE.ShapeGeometry(arrowShape).rotateX(-Math.PI / 2), markerMat);
+  for (const m of [markerRing, markerArrow]) m.renderOrder = 10;
+  marker.add(markerRing, markerArrow);
+  marker.visible = false;
+  scene.add(marker);
+  let markerFlash = 0;
+
+  const ARC_DOTS = 26;
+  const arcDots = new THREE.InstancedMesh(new THREE.SphereGeometry(0.022, 8, 6), markerMat, ARC_DOTS);
+  arcDots.count = 0;
+  arcDots.frustumCulled = false;
+  arcDots.renderOrder = 10;
+  scene.add(arcDots);
+
+  const fadeMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, side: THREE.BackSide, depthTest: false, depthWrite: false, fog: false });
+  const fadeSphere = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 10), fadeMat);
+  fadeSphere.renderOrder = 999;
+  fadeSphere.frustumCulled = false;
+  fadeSphere.visible = false;
+  camera.add(fadeSphere);
+  let fadeState = null;
+  function startFade(cb) {
+    if (reducedMotion) { cb(); return; }
+    fadeState = { t: 0, phase: 'out', cb };
+    fadeSphere.visible = true;
+  }
+  function updateFade(dt) {
+    if (!fadeState) return;
+    fadeState.t += dt;
+    if (fadeState.phase === 'out') {
+      const k = Math.min(1, fadeState.t / 0.11);
+      fadeMat.opacity = k;
+      if (k >= 1) { fadeState.cb(); fadeState = { t: 0, phase: 'in' }; }
+    } else {
+      const k = Math.min(1, fadeState.t / 0.17);
+      fadeMat.opacity = 1 - k;
+      if (k >= 1) { fadeMat.opacity = 0; fadeSphere.visible = false; fadeState = null; }
+    }
+  }
+
+  const tV = new THREE.Vector3(), tD = new THREE.Vector3(), tO = new THREE.Vector3();
+  const yawOf = (dir) => Math.atan2(-dir.x, -dir.z);
+  const headPos = () => camera.getWorldPosition(tV);
+  const headYaw = () => yawOf(camera.getWorldDirection(tD));
+  function rotateRigAroundHead(delta) {
+    const head = headPos();
+    const dx = rig.position.x - head.x, dz = rig.position.z - head.z;
+    const c = Math.cos(delta), s = Math.sin(delta);
+    rig.position.x = head.x + dx * c + dz * s;
+    rig.position.z = head.z - dx * s + dz * c;
+    rig.rotation.y += delta;
+    rig.updateMatrixWorld(true);
+  }
+  let teleports = 0;
+  function teleportTo(x, z, facing) {
+    if (fadeState) return;
+    startFade(() => {
+      const head = headPos();
+      rig.position.x += x - head.x;
+      rig.position.z += z - head.z;
+      rig.updateMatrixWorld(true);
+      if (facing !== undefined) rotateRigAroundHead(facing - headYaw());
+      teleports++;
+      updateHint();
+    });
+  }
+  function showMarker(x, z, ok, facing) {
+    marker.position.set(x, 0.03, z);
+    marker.rotation.y = facing || 0;
+    markerArrow.visible = facing !== undefined;
+    markerMat.color.copy(ok ? ACCENT : DANGER);
+    marker.visible = true;
+  }
+
+  // ---------- Commandes au doigt et à la souris ----------
+  const raycaster = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  const walkSurfaces = new Set([ground, paving, bands]);
+  const pickTargets = [ground, paving, bands, ...obstacles];
+  function onTap(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    ndc.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObjects(pickTargets, false)[0];
+    if (!hit) return;
+    const p = hit.point, head = headPos();
+    const ok = walkSurfaces.has(hit.object) && isWalkable(p.x, p.z) && Math.hypot(p.x - head.x, p.z - head.z) <= PHONE_MAX;
+    showMarker(p.x, p.z, ok);
+    markerFlash = 0.7;
+    if (ok) teleportTo(p.x, p.z);
+  }
+  function look(dx, dy) {
+    rig.rotation.y += dx * LOOK_K;
+    pitch = Math.max(-1.2, Math.min(1.2, pitch + dy * LOOK_K));
+    camera.rotation.x = pitch;
+  }
+  let pointer = null;
+  canvas.addEventListener('pointerdown', (e) => {
+    if (pointer || renderer.xr.isPresenting) return;
+    pointer = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, t0: performance.now(), moved: false };
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* facultatif */ }
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!pointer || e.pointerId !== pointer.id) return;
+    const dx = e.clientX - pointer.x, dy = e.clientY - pointer.y;
+    pointer.x = e.clientX; pointer.y = e.clientY;
+    if (!pointer.moved && Math.hypot(e.clientX - pointer.x0, e.clientY - pointer.y0) > 8) pointer.moved = true;
+    if (pointer.moved) look(dx, dy);
+  });
+  const endPointer = (e) => {
+    if (!pointer || e.pointerId !== pointer.id) return;
+    const p = pointer;
+    pointer = null;
+    if (e.type === 'pointerup' && !p.moved && performance.now() - p.t0 < 450) onTap(e.clientX, e.clientY);
+  };
+  canvas.addEventListener('pointerup', endPointer);
+  canvas.addEventListener('pointercancel', endPointer);
+
+  const turn = (delta) => rotateRigAroundHead(delta);
+  $('turn-left').addEventListener('click', () => turn(SNAP));
+  $('turn-right').addEventListener('click', () => turn(-SNAP));
+  $('turn-back').addEventListener('click', () => turn(Math.PI));
+  addEventListener('keydown', (e) => {
+    if (e.target && e.target.id === 'releve') return;
+    const k = e.key.toLowerCase();
+    if (k === 'q') turn(SNAP);
+    else if (k === 'e') turn(-SNAP);
+    else if (k === 'r') turn(Math.PI);
+  });
+  const diagBtn = $('diag-btn');
+  diagBtn.addEventListener('click', () => {
+    const open = $('diag').hidden;
+    $('diag').hidden = !open;
+    diagBtn.setAttribute('aria-expanded', String(open));
+    $('hint').hidden = open;
+    if (open) renderReadings();
+  });
+
+  // ---------- Manettes du casque : arc façon Resident Evil 4 ----------
+  const watchCanvas = document.createElement('canvas');
+  watchCanvas.width = 512; watchCanvas.height = 320;
+  const watchCtx = watchCanvas.getContext('2d');
+  const watchTex = new THREE.CanvasTexture(watchCanvas);
+  watchTex.colorSpace = THREE.SRGBColorSpace;
+  const watch = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.094), new THREE.MeshBasicMaterial({ map: watchTex, transparent: true, fog: false, depthWrite: false }));
+  watch.position.set(0, 0.035, 0.11);
+  watch.rotation.set(-1.05, 0, 0);
+  watch.visible = false;
+
+  const handleGeo = new THREE.CylinderGeometry(0.018, 0.026, 0.11, 14).rotateX(Math.PI / 2);
+  const ringGeo = new THREE.TorusGeometry(0.045, 0.008, 8, 24);
+  const padMat = new THREE.MeshLambertMaterial({ color: 0x2a2f36 });
+  const hands = [0, 1].map((i) => {
+    const ray = renderer.xr.getController(i);
+    const grip = renderer.xr.getControllerGrip(i);
+    rig.add(ray, grip);
+    const handle = new THREE.Mesh(handleGeo, padMat);
+    const ring = new THREE.Mesh(ringGeo, padMat); ring.position.set(0, 0.03, -0.03);
+    grip.add(handle, ring);
+    const h = { i, ray, grip, source: null, state: 'idle', facing: 0, valid: false, ax: 0, az: 0 };
+    ray.addEventListener('connected', (e) => {
+      h.source = e.data;
+      if (e.data && e.data.handedness === 'left') grip.add(watch);
+      else if (!watch.parent) grip.add(watch);
+    });
+    ray.addEventListener('disconnected', () => { h.source = null; h.state = 'idle'; });
+    return h;
+  });
+  function pulse(h, intensity, ms) {
+    try {
+      const a = h.source && h.source.gamepad && h.source.gamepad.hapticActuators && h.source.gamepad.hapticActuators[0];
+      if (a && a.pulse) a.pulse(intensity, ms);
+    } catch (_) { /* vibration facultative */ }
+  }
+  function computeArc(h) {
+    const o = h.ray.getWorldPosition(tO);
+    const dir = h.ray.getWorldDirection(tD).negate();
+    const vx = dir.x * ARC_SPEED, vy = dir.y * ARC_SPEED, vz = dir.z * ARC_SPEED;
+    const pts = [];
+    let px = o.x, py = o.y, pz = o.z, hit = false;
+    const step = 0.035;
+    for (let i = 1; i <= 90; i++) {
+      const t = i * step;
+      const nx = o.x + vx * t, ny = o.y + vy * t - 4.9 * t * t, nz = o.z + vz * t;
+      if (ny <= 0) {
+        const k = py / Math.max(1e-6, py - ny);
+        px += (nx - px) * k; pz += (nz - pz) * k; py = 0; hit = true;
+        pts.push([px, py, pz]);
+        break;
+      }
+      px = nx; py = ny; pz = nz;
+      pts.push([px, py, pz]);
+    }
+    h.valid = hit && isWalkable(px, pz);
+    h.ax = px; h.az = pz;
+    const n = Math.min(ARC_DOTS, pts.length);
+    for (let i = 0; i < n; i++) {
+      const p = pts[Math.floor(((i + 1) / n) * (pts.length - 1))];
+      dummy.position.set(p[0], p[1], p[2]); dummy.rotation.set(0, 0, 0); dummy.scale.set(1, 1, 1); dummy.updateMatrix();
+      arcDots.setMatrixAt(i, dummy.matrix);
+    }
+    arcDots.count = n;
+    arcDots.instanceMatrix.needsUpdate = true;
+    if (hit) showMarker(px, pz, h.valid, h.facing); else marker.visible = false;
+    markerMat.color.copy(h.valid ? ACCENT : DANGER);
+  }
+  function hideAim() { arcDots.count = 0; marker.visible = false; }
+  function updateHands() {
+    let aiming = false;
+    for (const h of hands) {
+      const gp = h.source && h.source.gamepad;
+      if (!gp) continue;
+      const ax = gp.axes.length >= 4 ? gp.axes[2] : (gp.axes[0] || 0);
+      const ay = gp.axes.length >= 4 ? gp.axes[3] : (gp.axes[1] || 0);
+      const mag = Math.hypot(ax, ay);
+      if (h.state === 'cooldown') { if (mag < 0.25) h.state = 'idle'; continue; }
+      if (h.state === 'idle') {
+        if (mag < 0.6) continue;
+        if (ay < -0.6 && Math.abs(ax) < 0.65) { h.state = 'aiming'; h.facing = yawOf(h.ray.getWorldDirection(tD).negate()); }
+        else if (Math.abs(ax) > 0.7 && Math.abs(ay) < 0.55) { turn(ax > 0 ? -SNAP : SNAP); h.state = 'cooldown'; pulse(h, 0.25, 20); continue; }
+        else if (ay > 0.7 && Math.abs(ax) < 0.55) { turn(Math.PI); h.state = 'cooldown'; pulse(h, 0.3, 25); continue; }
+        else continue;
+      }
+      if (h.state === 'aiming') {
+        if (mag > 0.5) h.facing = yawOf(h.ray.getWorldDirection(tD).negate()) - Math.atan2(ax, -ay);
+        if (mag < 0.25) {
+          h.state = 'idle';
+          if (h.valid) { teleportTo(h.ax, h.az, h.facing); pulse(h, 0.5, 35); }
+          continue;
+        }
+        computeArc(h);
+        aiming = true;
+      }
+    }
+    if (!aiming) hideAim();
+  }
+
+  // ---------- Mesures et relevé ----------
+  const blank = () => ({ frames: 0, time: 0, min: Infinity, calls: 0, tris: 0 });
+  const readings = { ecran: blank(), vr: blank() };
+  let settle = 1.5;
+  const modeKey = () => (renderer.xr.isPresenting ? 'vr' : 'ecran');
+  let fps = 0, winFrames = 0, winTime = 0, lastCalls = 0, lastTris = 0;
+  const fmtK = (n) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 100000 ? 0 : 1).replace('.', ',')} k` : String(n));
+  const chipState = (v, b) => (v <= b ? 'ok' : v <= b * 1.5 ? 'warn' : 'over');
+  const CHIP = { ok: 'OK', warn: 'limite', over: 'au-delà' };
+  function measure(rawDt) {
+    if (!(rawDt > 0) || rawDt > 2) return;
+    const r = readings[modeKey()];
+    if (settle > 0) settle -= rawDt;
+    else { r.frames++; r.time += rawDt; r.calls = lastCalls; r.tris = lastTris; }
+    winFrames++; winTime += rawDt;
+    if (winTime >= 0.5) {
+      fps = winFrames / winTime;
+      winFrames = 0; winTime = 0;
+      if (settle <= 0 && r.time > 0.5) r.min = Math.min(r.min, fps);
+      updateHud();
+    }
+  }
+  function updateHud() {
+    $('fps').textContent = String(Math.round(fps));
+    const cs = chipState(lastCalls, BUDGET.calls), ts = chipState(lastTris, BUDGET.tris);
+    $('calls').textContent = String(lastCalls);
+    $('calls-chip').dataset.state = cs; $('calls-chip').textContent = CHIP[cs];
+    $('tris').textContent = fmtK(lastTris);
+    $('tris-chip').dataset.state = ts; $('tris-chip').textContent = CHIP[ts];
+    if (!$('diag').hidden) renderReadings();
+    if (renderer.xr.isPresenting) drawWatch();
+  }
+  function rowText(mode) {
+    const r = readings[mode];
+    if (!r.time) return null;
+    const avg = Math.round(r.frames / r.time);
+    return { avg, min: Number.isFinite(r.min) ? Math.round(r.min) : avg, calls: r.calls, tris: fmtK(r.tris) };
+  }
+  const MODE_LABEL = { ecran: 'Écran', vr: 'Casque' };
+  function renderReadings() {
+    const body = $('readings');
+    body.replaceChildren();
+    for (const mode of ['ecran', 'vr']) {
+      const t = rowText(mode);
+      if (mode === 'vr' && !t) continue;
+      const tr = document.createElement('tr');
+      const cells = [MODE_LABEL[mode], t ? String(t.avg) : '—', t ? String(t.min) : '—', t ? String(t.calls) : '—', t ? t.tris : '—'];
+      for (const c of cells) { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); }
+      body.appendChild(tr);
+    }
+    $('releve').textContent = releveText();
+  }
+  function releveText() {
+    const lines = ["Ridel · banc d'essai T0 · place ovale 80 m × 28 m", `Navigateur : ${browserName} · ${innerWidth} × ${innerHeight} px`, `VR : ${xrText}`];
+    let any = false;
+    for (const mode of ['ecran', 'vr']) {
+      const t = rowText(mode);
+      if (!t) continue;
+      any = true;
+      lines.push(`${MODE_LABEL[mode]} : ${t.avg} i/s moy., ${t.min} min., ${t.calls} appels, ${t.tris} triangles`);
+    }
+    if (!any) lines.push('Aucune mesure encore : patientez quelques secondes.');
+    lines.push(`Téléportations : ${teleports}`);
+    return lines.join('\n');
+  }
+  $('copy').addEventListener('click', async () => {
+    const text = releveText();
+    $('releve').textContent = text;
+    try {
+      await navigator.clipboard.writeText(text);
+      $('copy-status').textContent = 'Relevé copié';
+    } catch (_) {
+      const range = document.createRange();
+      range.selectNodeContents($('releve'));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      $('copy-status').textContent = 'Texte sélectionné : copiez-le avec le menu';
+    }
+  });
+
+  function drawWatch() {
+    const g = watchCtx, W = 512, H = 320;
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = css('--glass-hi') || 'rgba(38, 44, 52, 0.94)';
+    rr(g, 0, 0, W, H, 40); g.fill();
+    const dim = css('--linen-dim') || '#b7b0a3', ink = css('--linen') || '#ece6da';
+    const fpsCol = fps >= BUDGET.fps - 2 ? css('--sage') : fps >= BUDGET.fps * 0.8 ? css('--weld') : css('--madder');
+    g.fillStyle = dim; g.font = '600 24px "Martian Mono", monospace'; g.fillText("RIDEL · BANC D'ESSAI", 32, 50);
+    g.fillStyle = fpsCol || ink; g.font = '600 104px "Martian Mono", monospace'; g.fillText(String(Math.round(fps)), 28, 168);
+    g.fillStyle = dim; g.font = '400 24px "Martian Mono", monospace'; g.fillText('images/s', 30, 204);
+    g.fillStyle = ink; g.font = '400 26px "Martian Mono", monospace';
+    g.fillText(`${lastCalls} appels (2 yeux)`, 250, 120);
+    g.fillText(`${fmtK(lastTris)} triangles`, 250, 162);
+    g.fillText('place 80 × 28 m', 250, 204);
+    g.fillStyle = dim; g.font = '400 22px "Atkinson Hyperlegible", sans-serif';
+    g.fillText('stick avant : arc · côtés : 45° · arrière : demi-tour', 30, 272);
+    watchTex.needsUpdate = true;
+  }
+
+  function updateHint() {
+    const hint = $('hint');
+    if (teleports === 0) {
+      hint.textContent = coarse
+        ? 'Touchez le sol pour vous téléporter · glissez pour regarder'
+        : 'Cliquez le sol pour vous téléporter · cliquez-glissez pour regarder · Q, E, R pour tourner';
+    } else if (teleports < 4) {
+      hint.textContent = "La place mesure 80 m : traversez-la par bonds jusqu'au bout, puis jetez un œil dans les rues";
+    } else {
+      hint.textContent = 'Ouvrez « Diagnostic » pour copier le relevé et me le transmettre';
+    }
+  }
+
+  // ---------- Diagnostic ----------
+  const ua = navigator.userAgent;
+  const isQuest = /OculusBrowser|Quest/i.test(ua);
+  const browserName = isQuest ? 'Navigateur du Meta Quest'
+    : /SamsungBrowser/i.test(ua) ? 'Samsung Internet'
+    : /Edg\//.test(ua) ? 'Edge'
+    : /Chrome\//.test(ua) ? (/Android/i.test(ua) ? 'Chrome Android' : 'Chrome')
+    : /Firefox\//.test(ua) ? 'Firefox'
+    : /Safari\//.test(ua) ? 'Safari' : 'Navigateur non identifié';
+  let xrText = 'vérification en cours';
+  function setXr(state, text) { xrText = text; const el = $('d-xr'); el.dataset.state = state; el.textContent = text; }
+  function setModeLabel() {
+    $('mode').textContent = renderer.xr.isPresenting ? 'Mode VR' : coarse ? 'Mode tactile' : 'Souris et clavier';
+  }
+  async function diagnose() {
+    $('d-browser').textContent = browserName;
+    $('d-screen').textContent = `${innerWidth} × ${innerHeight} px · densité ${(devicePixelRatio || 1).toFixed(2).replace('.', ',')} · rendu ×${renderer.getPixelRatio().toFixed(2).replace('.', ',')}`;
+    $('d-webgl').textContent = renderer.capabilities.isWebGL2 ? 'WebGL 2 actif' : 'WebGL 1 seulement';
+    $('d-three').textContent = `Three.js r${THREE.REVISION}`;
+    if (!('xr' in navigator)) {
+      setXr('none', isQuest ? 'WebXR absent : mettez à jour le navigateur du casque.' : 'Pas de WebXR ici : normal sur téléphone et ordinateur.');
+      return;
+    }
+    try {
+      const ok = await navigator.xr.isSessionSupported('immersive-vr');
+      if (ok) { setXr('ok', 'Disponible : touchez « Entrer en VR ».'); $('vr').hidden = false; }
+      else setXr('no', isQuest ? "Refusée dans cet affichage : ouvrez la version hébergée du banc d'essai." : 'Aucun casque détecté.');
+    } catch (err) {
+      setXr('blocked', `Bloquée par l'affichage (${err && err.name ? err.name : 'refus'}) : la VR passe par la version hébergée.`);
+    }
+  }
+  $('vr').addEventListener('click', async () => {
+    try {
+      const session = await navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'] });
+      await renderer.xr.setSession(session);
+    } catch (err) {
+      setXr('blocked', `Ouverture refusée : ${err && err.message ? err.message : 'raison inconnue'}`);
+      $('diag').hidden = false; diagBtn.setAttribute('aria-expanded', 'true'); $('hint').hidden = true;
+    }
+  });
+  renderer.xr.addEventListener('sessionstart', () => {
+    document.body.classList.add('in-vr');
+    markerFlash = 0; hideAim();
+    watch.visible = true;
+    settle = 1.5;
+    setModeLabel();
+    drawWatch();
+  });
+  renderer.xr.addEventListener('sessionend', () => {
+    document.body.classList.remove('in-vr');
+    watch.visible = false;
+    hideAim();
+    camera.position.set(0, EYE, 0);
+    camera.quaternion.identity();
+    camera.rotation.set(pitch, 0, 0);
+    settle = 1.5;
+    setModeLabel();
+    onResize();
+  });
+
+  function onResize() {
+    if (renderer.xr.isPresenting) return;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+  }
+  addEventListener('resize', onResize);
+
+  // ---------- Boucle ----------
+  updateHint();
+  setModeLabel();
+  diagnose();
+  let last = performance.now() / 1000, elapsed = 0, firstFrame = true;
+  renderer.setAnimationLoop((time) => {
+    const now = (time || performance.now()) / 1000;
+    const rawDt = now - last;
+    last = now;
+    const dt = Math.min(Math.max(rawDt, 0), 0.1);
+    elapsed += dt;
+    if (renderer.xr.isPresenting) updateHands();
+    updateFade(dt);
+    updateDrops(elapsed);
+    rippleTex.rotation += dt * 0.04;
+    if (markerFlash > 0) { markerFlash -= dt; if (markerFlash <= 0) marker.visible = false; }
+    renderer.render(scene, camera);
+    lastCalls = renderer.info.render.calls;
+    lastTris = renderer.info.render.triangles;
+    measure(rawDt);
+    if (firstFrame) { firstFrame = false; $('loading').hidden = true; }
+  });
+
+  const stableNav=document.createElement('div');
+  stableNav.style.cssText='position:fixed;right:12px;bottom:96px;z-index:30;display:flex;gap:5px';
+  stableNav.innerHTML='<button id="stable-jump" style="background:#243f32;color:white;padding:9px;border-radius:6px">Écuries nord</button><a href="./ecuries-v53.html" target="_blank" rel="noopener" style="background:#243f32;color:white;padding:9px;border-radius:6px;text-decoration:none">Détail V53</a>';
+  document.body.appendChild(stableNav);
+  document.getElementById('stable-jump').addEventListener('click',()=>{rig.position.set(STABLE_X,0,STABLE_Z+21);rig.rotation.y=Math.PI;rig.updateMatrixWorld(true);updateHint();});
+  window.ridelBanc = {
+    state: () => ({ x: rig.position.x, z: rig.position.z, yaw: rig.rotation.y, fps, calls: lastCalls, tris: lastTris, teleports, houses: houses.length, xr: xrText }),
+    walkable: isWalkable,
+    goTo: (x, z, yaw) => { rig.position.set(x, 0, z); if (yaw !== undefined) rig.rotation.y = yaw; rig.updateMatrixWorld(true); },
+  };
+}
+</script>
+
+</body>
+</html>
