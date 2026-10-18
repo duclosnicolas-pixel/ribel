@@ -1,0 +1,32 @@
+{
+  "id": "ribel",
+  "units": "meters",
+  "coordinateSystem": {
+    "x": "east",
+    "y": "up",
+    "z": "south"
+  },
+  "zones": [
+    {
+      "id": "village",
+      "path": "zones/01-village",
+      "status": "active-legacy"
+    },
+    {
+      "id": "chateau",
+      "path": "zones/02-chateau",
+      "status": "planned"
+    },
+    {
+      "id": "campagne",
+      "path": "zones/03-campagne",
+      "status": "planned"
+    },
+    {
+      "id": "foret",
+      "path": "zones/04-foret",
+      "status": "planned"
+    }
+  ],
+  "note": "Configuration cible : le moteur existant ne consomme pas encore ce fichier."
+}
