@@ -1,0 +1,16 @@
+{
+  "id": "entree",
+  "zoneId": "Z01",
+  "label": "Entrée",
+  "visitable": true,
+  "status": "planned",
+  "contents": [
+    "porte du domaine rive droite",
+    "point d'arrivée du joueur",
+    "chemin d'arrivée vers les écuries du village (à concevoir)"
+  ],
+  "loading": "un chargement",
+  "buildings": [],
+  "coordinateSystem": "world meters (x est, y haut, z sud)",
+  "decision": "8 zones visitables, MOA 11/10 et 18/10/2026"
+}

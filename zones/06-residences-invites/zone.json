@@ -1,0 +1,14 @@
+{
+  "id": "residences-invites",
+  "zoneId": "Z06",
+  "label": "Résidences des invités",
+  "visitable": true,
+  "status": "planned",
+  "contents": [
+    "bande nord-ouest le long de l'Indre"
+  ],
+  "loading": "un chargement",
+  "buildings": [],
+  "coordinateSystem": "world meters (x est, y haut, z sud)",
+  "decision": "8 zones visitables, MOA 11/10 et 18/10/2026"
+}

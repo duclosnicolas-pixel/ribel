@@ -138,7 +138,7 @@ body.in-vr .hud { display: none; }
         <tbody id="readings"></tbody>
       </table>
     </div>
-    <p class="note">Mesures du décor seul : la place de 80 m, ses façades, la fontaine, l'église Saint-Michel au nord, le monastère et son cimetière au sud. Comptez quelques secondes avant de lire la moyenne.</p>
+    <p class="note">Mesures du décor seul : la place de 80 m, ses façades, la fontaine, le monastère et son cimetière au sud. Comptez quelques secondes avant de lire la moyenne.</p>
     <pre id="releve"></pre>
     <div class="copy-row"><button id="copy" type="button">Copier le relevé</button><span class="status" id="copy-status" role="status"></span></div>
   </section>
@@ -457,7 +457,7 @@ function main(THREE) {
     addHouse(x0, side + 4, Math.PI, 9, 8, 1);
     addHouse(sgn * (FACADE_A + STREET_LEN + 4.5), 0, sgn > 0 ? -Math.PI / 2 : Math.PI / 2, 10, 8, 2);
   }
-  for (const sgn of [1, -1]) {                       // rues sud et nord : l'église au nord, le cimetière au sud
+  for (const sgn of [1, -1]) {                       // rues sud et nord : les écuries au nord, le cimetière au sud
     const z0 = sgn * (FACADE_B + 13);
     addHouse(-(side + 4), z0, Math.PI / 2, 9, 8, 2);
     addHouse(side + 4, z0, -Math.PI / 2, 9, 8, 1);
@@ -528,17 +528,6 @@ function main(THREE) {
     }
   }
   const obstacles = [lowerMesh, upperMesh, roofMesh];
-
-  // ---------- Église Saint-Michel au bout de la rue nord ----------
-  {
-    const cz = -(FACADE_B + STREET_LEN + 5.5);
-    const nave = new THREE.Mesh(unitBox, M.stone); nave.scale.set(24, 12, 11); nave.position.set(2, 0, cz);
-    const naveRoof = new THREE.Mesh(prism, [M.roof, M.gable]); naveRoof.rotation.y = Math.PI / 2; naveRoof.scale.set(11.6, 7.5, 24.6); naveRoof.position.set(2, 12, cz);
-    const tower = new THREE.Mesh(unitBox, M.stone); tower.scale.set(6.5, 27, 6.5); tower.position.set(-13.5, 0, cz);
-    const spire = new THREE.Mesh(new THREE.ConeGeometry(4.9, 15, 4), M.roof); spire.rotation.y = Math.PI / 4; spire.position.set(-13.5, 34.5, cz);
-    scene.add(nave, naveRoof, tower, spire);
-    obstacles.push(nave, naveRoof, tower, spire);
-  }
 
   // ---------- Au sud du village : cimetière clos et monastère ----------
   {

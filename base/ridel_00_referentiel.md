@@ -1,23 +1,21 @@
 # Ribel — référentiel projet
 
-État au 18 octobre 2026. Le dépôt GitHub fait foi pour le code et l'état partagé (`docs/PROJECT_STATE.md`) ; ce référentiel garde les décisions de la MOA, le registre des zones et les points à arbitrer.
+État au 18 octobre 2026 (soir). Le dépôt GitHub fait foi pour le code et l'état partagé (`docs/PROJECT_STATE.md`) ; ce référentiel garde les décisions de la MOA et les registres.
 
-## Gouvernance (mise à jour du 18 octobre)
+## Gouvernance
 - MOA : Nicolas, seul habilité à valider implantations, recettes et mises en production.
-- MOE et responsable technique (techlead) : Claude — architecture, moteur partagé (`core/`), contrats de modules, intégration au monde, budgets de rendu, revue technique des livraisons.
-- ChatGPT : assistance (AMOA/AMOE selon les documents), UX et modélisation 3D Three.js — bâtiments, décors, prévisualisations.
-- À harmoniser : la description du projet claude.ai nomme ChatGPT « AMOA », `CLAUDE.md` le nomme « AMOE » et attribue l'AMOA à Claude.
+- MOE, AMOA et responsable technique (techlead) : Claude — architecture, moteur partagé (`core/`), contrats de modules, intégration au monde, budgets de rendu, revue technique des livraisons.
+- AMOE, UX et modélisation 3D Three.js : ChatGPT (confirmé par la MOA le 18 octobre) — bâtiments, décors, prévisualisations.
 
-## Sources de vérité et méthode (fixées dans le dépôt)
+## Sources de vérité et méthode
 - Dépôt : https://github.com/duclosnicolas-pixel/ribel — public, publié par GitHub Pages : https://duclosnicolas-pixel.github.io/ribel/
-- À lire en début de chantier : `AGENTS.md`, `CLAUDE.md`, `ARCHITECTURE.md`, `docs/PROJECT_STATE.md`, `docs/WORKFLOW.md`, `docs/CONTRACTS.md`, puis le manifeste du module.
+- À lire en début de chantier : `AGENTS.md`, `CLAUDE.md`, `ARCHITECTURE.md`, `docs/PROJECT_STATE.md`, `docs/WORKFLOW.md`, `docs/CONTRACTS.md`, puis le manifeste du module. Prompts de reprise : `docs/prompts/ECURIES.md`, `docs/prompts/TAVERNE.md`.
 - Un chantier = une zone, un bâtiment, un personnage ou un système, dans son dossier, avec manifeste et prévisualisation isolée.
-- `index.html` (village en production) n'est modifié qu'avec l'accord de la MOA ; aucune prévisualisation n'y est fusionnée sans recette.
+- `index.html` (village en production) n'est modifié qu'avec l'accord de la MOA.
 - Un seul moteur : un renderer, une boucle de rendu, une carte de coordonnées (mètres ; x est, y haut, z sud).
 - Un contrôle technique n'est jamais présenté comme une recette sur appareil.
-- Dossier de lancement (Claude Docs) : https://claude.ai/code/artifact/bd6028bb-7f17-4f38-bf00-880b98a53949
 
-## Décisions MOA du 11 octobre 2026 (toujours en vigueur sauf mention)
+## Décisions MOA du 11 octobre 2026
 - A1 Site : château de l'Islette, Azay-le-Rideau (≈ 47,268 N ; 0,435 E).
 - A2 Époque : vers 1500 ; le dépôt retient Touraine / Loire 1450–1550, artisanat non industriel.
 - A3 Monastère et cimetière au sud du village.
@@ -26,43 +24,55 @@
 - A6 Place du marché ovale 80 m × 28 m.
 - A7 Limite du monde : mur d'enceinte sur l'emprise de l'ancienne voie ferrée.
 - A8 Hébergement GitHub, dépôt « ribel ».
-- PNJ supprimés le 11 octobre — voir écart n° 2 ci-dessous.
+
+## Décisions MOA du 18 octobre 2026
+- B1 Zones : le dépôt reprend exactement les 8 zones visitables (dossiers `zones/01-entree` à `zones/08-maison-futuriste`) ; forêt, mur d'enceinte et monde lointain sont des décors non visitables.
+- B2 Personnages : prévus, mais non prioritaires (T5 à T7, après les zones et l'horizon).
+- B3 Écuries au nord du village, en plein sur l'axe : porte d'entrée du village — on dépose sa monture, puis on entre dans le village. Pas d'église au nord : supprimée strictement.
+- B4 ChatGPT agit en qualité d'AMOE.
+
+## Zones visitables
+| ID | Dossier | Zone |
+|---|---|---|
+| Z01 | `zones/01-entree` | Entrée |
+| Z02 | `zones/02-chateau-interieur` | Château intérieur (RDC, 1er, 2e, cave, sous-sol) |
+| Z03 | `zones/03-chateau-exterieur` | Château extérieur |
+| Z04 | `zones/04-lac` | Lac |
+| Z05 | `zones/05-village` | Village (place 80 × 28 m, fontaine, écuries au nord, monastère et cimetière au sud) |
+| Z06 | `zones/06-residences-invites` | Résidences des invités |
+| Z07 | `zones/07-vergers-serre` | Vergers et serre exotique |
+| Z08 | `zones/08-maison-futuriste` | Maison futuriste |
 
 ## État au 18 octobre
-- Village (production, `index.html`) : refonte graphique du 13 octobre (teintes, cheminées, portes, fenêtres instanciées). Sauvegarde : `index-avant-ecuries-nord.html`.
-- Écuries : référence de travail `ecuries-v53.html` (U de 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail ; jour/nuit, lampes, foyer, portes). V54 rejetée. Lampes à redessiner. Implantation provisoire au nord/nord-est de l'église (x 43, z −83), maquette `ribel-ecuries-nord-preview.html`.
-- Architecture modulaire : dossiers, manifestes et contrats v0.1 posés ; moteur non encore extrait de `index.html`, zones non chargées dynamiquement.
+- Village (production, `index.html`) : refonte graphique du 13 octobre ; église du nord supprimée le 18 octobre (sauvegarde `index-avant-suppression-eglise.html`). La rue nord débouche sur l'emplacement des écuries.
+- Écuries : référence de travail `ecuries-v53.html` (U de 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail ; jour/nuit, lampes, foyer, portes). V54 rejetée. Lampes à redessiner. Ancrage x 0, z −70, rotation 0 ; portail au sud face à la rue nord (z −40,5), parvis de 5,5 m. Maquette d'implantation : `ribel-ecuries-nord-preview.html`.
+- Architecture modulaire : dossiers des 8 zones, manifestes et contrats v0.1 posés ; moteur non encore extrait de `index.html`, zones non chargées dynamiquement.
 - Taverne, forge : dossiers prévus, non modélisés.
 
 ## Contrôle technique MOE du 18 octobre (navigateur sans écran, rendu logiciel — pas une recette)
 | Page | Erreurs JS | Appels de rendu / image | Triangles / image |
 |---|---|---|---|
-| `index.html` (village) | aucune | 23 | 26 900 |
-| `ribel-ecuries-nord-preview.html` | aucune | 24 | 26 900 |
-| `ecuries-v53.html` | aucune | **2 167** | 179 000 |
+| `index.html` (sans église) | aucune | 23 à 30 selon la vue | 27 000 |
+| `ribel-ecuries-nord-preview.html` | aucune | 24 à 126 selon la vue | 28 000 |
+| `ecuries-v53.html` | aucune | 2 167 | 179 000 |
 
-- Le village tient largement les budgets Quest 2 (≤ 100 appels, ≤ 300 000 triangles par œil).
-- Les écuries V53 dépassent le budget d'appels d'un facteur 20 : environ 50 maillages isolés et des centaines de pièces répétées, matériaux PBR, ombres douces, 10 lumières ponctuelles. Acceptable en prévisualisation téléphone, intenable en VR une fois posé dans le village.
-- Condition d'intégration proposée : fusion des pièces statiques par matériau, instanciation des répétitions (boxes, piliers, lanternes), matériaux Lambert, une seule ombre directionnelle, lampes en émissif avec deux lumières au plus. Cible : ≤ 40 appels pour l'ensemble des écuries.
-
-## Écarts à arbitrer par la MOA
-1. Découpage des zones : le dépôt a 4 secteurs (village, château, campagne, forêt), la décision du 11 octobre 8 zones visitables. Proposition MOE : garder les 4 secteurs comme dossiers et les 8 zones comme unités de chargement — village ⊃ Z05 ; château ⊃ Z01, Z02, Z03 ; campagne ⊃ Z04, Z06, Z07 ; forêt = décor d'horizon ⊃ chemin et Z08.
-2. Personnages : PNJ supprimés le 11 octobre, mais palefrenier (AA), tavernier (AB) et forgeron (AC) réservés dans `characters/`. Réintroduction à confirmer ; Angie et Kara (T7) restent en attente.
-3. Emplacement des écuries : à valider sur le croquis.
-4. Deux référentiels dans le dépôt (`base/` et `docs/PROJECT_STATE.md`) : proposition de fondre `base/` dans `docs/` (décisions dans `docs/DECISIONS.md`, zones dans `world/world.json`).
+- Le village tient les budgets Quest 2 (≤ 100 appels, ≤ 300 000 triangles par œil).
+- Écuries V53 : environ 20 fois le budget d'appels. Condition d'intégration : fusion des pièces statiques par matériau, instanciation des répétitions, matériaux Lambert, une seule ombre directionnelle, lampes en émissif avec deux lumières au plus. Cible : ≤ 40 appels pour l'ensemble.
 
 ## Choix techniques
 - WebXR + Three.js r170, un seul code pour Quest 2 (VR) et Galaxy Z Fold 6 (tactile).
 - Contrats v0.1 : `createBuilding(context, config)`, `createZone(context, zoneConfig)`, `createCharacter(context, definition)` ; bus d'événements ; personnages indépendants des bâtiments.
 - Deux couches : monde lointain toujours chargé, zone active en détail ; transitions par fondu ; voyage rapide.
 - Téléportation façon RE4 (arc, orientation, rotation 45°, demi-tour) ; téléphone : toucher pour se téléporter, glisser pour regarder.
-- Budgets par œil : 72 i/s, ≤ 100 appels, ≤ 300 000 triangles ; instanciation, fusion, rendu fovéal, éclairage simple compatible T8/T9.
+- Budgets par œil : 72 i/s, ≤ 100 appels, ≤ 300 000 triangles.
 - Relief : LiDAR HD IGN ; RGE ALTI en secours.
 
 ## Séquencement (README de la MOA)
 T1 place du village et fontaine → T2 téléportation façon RE4 → T3 séparation des zones → T4 horizon → T5 bots et personnages → T6 interactions → T7 Angie, Kara → T8 horaires → T9 saisons.
 
 ## Points ouverts
+- Arrivée du chemin depuis l'Entrée jusqu'aux écuries : par le nord ou par un côté.
 - Butte de liaison (avec monastère et cimetière dans la liste T3) : à situer.
 - Moulin : rattachement au château extérieur.
+- Fusion de `base/` dans `docs/` : proposée par la MOE.
 - Recette Fold 6 et Quest 2 du village : relevé « Diagnostic » attendu.

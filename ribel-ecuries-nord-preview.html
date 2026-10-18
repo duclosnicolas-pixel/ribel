@@ -6,7 +6,7 @@
 <style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>RIBEL · Village — refonte graphique 2026-10-13</title>
+<title>RIBEL · Implantation des écuries nord</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Atkinson+Hyperlegible:wght@400;700&family=Martian+Mono:wght@400;600&display=swap">
@@ -138,7 +138,7 @@ body.in-vr .hud { display: none; }
         <tbody id="readings"></tbody>
       </table>
     </div>
-    <p class="note">Mesures du décor seul : la place de 80 m, ses façades, la fontaine, l'église Saint-Michel au nord, le monastère et son cimetière au sud. Comptez quelques secondes avant de lire la moyenne.</p>
+    <p class="note">Mesures du décor seul : la place de 80 m, ses façades, la fontaine, le monastère et son cimetière au sud. Comptez quelques secondes avant de lire la moyenne.</p>
     <pre id="releve"></pre>
     <div class="copy-row"><button id="copy" type="button">Copier le relevé</button><span class="status" id="copy-status" role="status"></span></div>
   </section>
@@ -457,7 +457,7 @@ function main(THREE) {
     addHouse(x0, side + 4, Math.PI, 9, 8, 1);
     addHouse(sgn * (FACADE_A + STREET_LEN + 4.5), 0, sgn > 0 ? -Math.PI / 2 : Math.PI / 2, 10, 8, 2);
   }
-  for (const sgn of [1, -1]) {                       // rues sud et nord : l'église au nord, le cimetière au sud
+  for (const sgn of [1, -1]) {                       // rues sud et nord : les écuries au nord, le cimetière au sud
     const z0 = sgn * (FACADE_B + 13);
     addHouse(-(side + 4), z0, Math.PI / 2, 9, 8, 2);
     addHouse(side + 4, z0, -Math.PI / 2, 9, 8, 1);
@@ -529,20 +529,11 @@ function main(THREE) {
   }
   const obstacles = [lowerMesh, upperMesh, roofMesh];
 
-  // ---------- Église Saint-Michel au bout de la rue nord ----------
-  {
-    const cz = -(FACADE_B + STREET_LEN + 5.5);
-    const nave = new THREE.Mesh(unitBox, M.stone); nave.scale.set(24, 12, 11); nave.position.set(2, 0, cz);
-    const naveRoof = new THREE.Mesh(prism, [M.roof, M.gable]); naveRoof.rotation.y = Math.PI / 2; naveRoof.scale.set(11.6, 7.5, 24.6); naveRoof.position.set(2, 12, cz);
-    const tower = new THREE.Mesh(unitBox, M.stone); tower.scale.set(6.5, 27, 6.5); tower.position.set(-13.5, 0, cz);
-    const spire = new THREE.Mesh(new THREE.ConeGeometry(4.9, 15, 4), M.roof); spire.rotation.y = Math.PI / 4; spire.position.set(-13.5, 34.5, cz);
-    scene.add(nave, naveRoof, tower, spire);
-    obstacles.push(nave, naveRoof, tower, spire);
-  }
-
-  // Écuries RIBEL au nord-est de Saint-Michel : maquette 3D d'implantation.
+  // Écuries RIBEL au nord du village, sur l'axe de la rue nord (décision MOA du 18/10/2026) :
+  // on dépose sa monture, puis on entre dans le village par le portail sud des écuries.
+  // Maquette 3D d'implantation ; la modélisation détaillée V53 reste dans sa page indépendante.
   // La modélisation détaillée V53 est conservée dans sa page indépendante.
-  const STABLE_X=43, STABLE_Z=-83;
+  const STABLE_X=0, STABLE_Z=-70;   // portail (z local +29,5) à z -40,5 : parvis de 5,5 m au bout de la rue nord
   const stableGroup=new THREE.Group();stableGroup.position.set(STABLE_X,0,STABLE_Z);scene.add(stableGroup);
   const sm={stone:new THREE.MeshLambertMaterial({color:0xbba88c}),wood:new THREE.MeshLambertMaterial({color:0x64462f}),roof:new THREE.MeshLambertMaterial({color:0x46525c,side:THREE.DoubleSide}),iron:new THREE.MeshLambertMaterial({color:0x343638}),floor:new THREE.MeshLambertMaterial({color:0x9c9080})};
   function stableBox(w,h,d,x,y,z,m){
@@ -580,7 +571,7 @@ function main(THREE) {
   for(const x of [-17,17])stableBox(25,1.7,.5,x,.85,29.5,sm.stone);
   for(const x of [-29.5,29.5])stableBox(.5,1.7,59,x,.85,0,sm.stone);
   for(const x of [-4.5,4.5])stableBox(.75,2.6,.75,x,1.3,29.5,sm.stone);
-  // Chemin d'accès desservant le portail, contournant l'église par l'est.
+  // Parvis pavé reliant le bout de la rue nord au portail des écuries, dans l'axe.
   const pathMat=new THREE.MeshLambertMaterial({color:0x8e816d});
   function stablePath(x0,z0,x1,z1){
     const dx=x1-x0,dz=z1-z0,len=Math.hypot(dx,dz);
@@ -588,7 +579,7 @@ function main(THREE) {
     m.rotation.x=-Math.PI/2;m.rotation.z=Math.atan2(dx,dz);
     m.position.set((x0+x1)/2,.065,(z0+z1)/2);scene.add(m);
   }
-  stablePath(4,-32,23,-49);stablePath(23,-49,43,-53);
+  stablePath(0,-33,0,-41.5);
 
   // ---------- Au sud du village : cimetière clos et monastère ----------
   {
@@ -718,7 +709,7 @@ function main(THREE) {
     const northSouth = Math.abs(x) < STREET_HALF - 0.4 && Math.abs(z) <= FACADE_B + STREET_LEN - 0.6;
     const yard=x>STABLE_X-28&&x<STABLE_X+28&&z>STABLE_Z-28&&z<STABLE_Z+28;
     const nearSegment=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));return Math.hypot(x-ax-t*dx,z-az-t*dz)<3;};
-    return eastWest||northSouth||yard||nearSegment(4,-32,23,-49)||nearSegment(23,-49,43,-53);
+    return eastWest||northSouth||yard||nearSegment(0,-33,0,-41.5);
   }
 
   // ---------- Repère de téléportation, arc en pointillé, fondu ----------
@@ -1170,7 +1161,7 @@ function main(THREE) {
   stableNav.style.cssText='position:fixed;right:12px;bottom:96px;z-index:30;display:flex;gap:5px';
   stableNav.innerHTML='<button id="stable-jump" style="background:#243f32;color:white;padding:9px;border-radius:6px">Écuries nord</button><a href="./ecuries-v53.html" target="_blank" rel="noopener" style="background:#243f32;color:white;padding:9px;border-radius:6px;text-decoration:none">Détail V53</a>';
   document.body.appendChild(stableNav);
-  document.getElementById('stable-jump').addEventListener('click',()=>{rig.position.set(STABLE_X,0,STABLE_Z+21);rig.rotation.y=Math.PI;rig.updateMatrixWorld(true);updateHint();});
+  document.getElementById('stable-jump').addEventListener('click',()=>{rig.position.set(STABLE_X,0,-37);rig.rotation.y=0;rig.updateMatrixWorld(true);updateHint();});
   window.ridelBanc = {
     state: () => ({ x: rig.position.x, z: rig.position.z, yaw: rig.rotation.y, fps, calls: lastCalls, tris: lastTris, teleports, houses: houses.length, xr: xrText }),
     walkable: isWalkable,

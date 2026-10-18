@@ -1,0 +1,45 @@
+{
+  "id": "ecuries",
+  "zone": "village",
+  "period": "XVe siècle",
+  "referencePreview": "../../../ecuries-v53.html",
+  "placementPreview": "../../../ribel-ecuries-nord-preview.html",
+  "placement": {
+    "x": 0,
+    "y": 0,
+    "z": -70,
+    "rotationY": 0,
+    "status": "axe et position nord décidés par le MOA le 18/10/2026 ; profondeur proposée par la MOE",
+    "logique": "porte d'entrée du village : on dépose sa monture aux écuries puis on entre dans le village par la rue nord",
+    "portail": "au sud (z local +29,5), face à la rue nord, à z monde -40,5 ; parvis pavé de 5,5 m jusqu'au bout de la rue (z -35)",
+    "emprise_monde": {
+      "x": [
+        -30,
+        30
+      ],
+      "z": [
+        -100,
+        -40.5
+      ]
+    }
+  },
+  "components": [
+    "six-boxes-nuit",
+    "quatre-boxes-jour",
+    "remise-ouest",
+    "logement-palefrenier",
+    "cour",
+    "enceinte",
+    "portail"
+  ],
+  "status": "legacy-preview-awaiting-extraction",
+  "note": "V53 autonome : ne pas considérer la maquette de situation comme la géométrie finale.",
+  "zoneId": "Z05",
+  "budget": {
+    "appels_de_rendu_max": 40,
+    "source": "contrôle MOE du 18/10/2026 (V53 : 2 167 appels)"
+  },
+  "openPoints": [
+    "arrivée du chemin depuis l'Entrée (Z01) : par le nord ou par un côté, à concevoir avec la MOA"
+  ]
+}

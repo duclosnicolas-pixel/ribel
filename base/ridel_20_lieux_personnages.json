@@ -1,44 +1,143 @@
 {
   "projet": "Ribel",
   "registre": "lieux et personnages",
-  "version": "2026-10-18 · architecture modulaire du dépôt prise en compte",
+  "version": "2026-10-18 · décisions MOA du 18 octobre",
   "lieux_village": {
     "statut": "relevés sur l'ébauche de la MOA et dans le dépôt ; implantations non contractuelles",
     "lieux": [
-      { "nom": "Place du marché", "type": "place ovale de 80 m × 28 m avec fontaine centrale", "etat": "production" },
-      { "nom": "Écuries", "type": "ensemble en U : 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail", "module": "zones/01-village/01-ecuries", "reference": "ecuries-v53.html", "etat": "prévisualisation ; lampes à redessiner ; emplacement provisoire au nord/nord-est de l'église" },
-      { "nom": "Taverne", "type": "taverne-auberge (L'Épée Royale sur l'ébauche, à confirmer)", "module": "zones/01-village/02-taverne", "etat": "conception à venir" },
-      { "nom": "Forge", "type": "artisan", "module": "zones/01-village/03-forge", "etat": "prévu" },
-      { "nom": "Le Pain Doré", "type": "boulangerie" },
-      { "nom": "La Huche de Pain", "type": "boulangerie" },
-      { "nom": "Les Remèdes du Temps", "type": "apothicaire" },
-      { "nom": "Maison du marchand", "type": "demeure" },
-      { "nom": "Maison des marchands (guilde)", "type": "guilde" },
-      { "nom": "Église Saint-Michel", "type": "église paroissiale", "module": "zones/01-village/04-eglise", "etat": "existant dans index.html" },
-      { "nom": "Habitations", "type": "maisons à pans de bois en encorbellement", "module": "zones/01-village/05-habitations", "etat": "existant dans index.html" },
-      { "nom": "Monastère et cloître", "type": "monastère, au sud du village" },
-      { "nom": "Cimetière", "type": "cimetière clos, au sud du village" }
+      {
+        "nom": "Place du marché",
+        "type": "place ovale de 80 m × 28 m avec fontaine centrale",
+        "etat": "production"
+      },
+      {
+        "nom": "Écuries",
+        "type": "ensemble en U : 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail",
+        "module": "zones/05-village/01-ecuries",
+        "reference": "ecuries-v53.html",
+        "etat": "prévisualisation ; lampes à redessiner ; au nord du village sur l'axe de la rue nord, porte d'entrée du village (décision MOA du 18/10)"
+      },
+      {
+        "nom": "Taverne",
+        "type": "taverne-auberge (L'Épée Royale sur l'ébauche, à confirmer)",
+        "module": "zones/05-village/02-taverne",
+        "etat": "conception à venir"
+      },
+      {
+        "nom": "Forge",
+        "type": "artisan",
+        "module": "zones/05-village/03-forge",
+        "etat": "prévu"
+      },
+      {
+        "nom": "Le Pain Doré",
+        "type": "boulangerie"
+      },
+      {
+        "nom": "La Huche de Pain",
+        "type": "boulangerie"
+      },
+      {
+        "nom": "Les Remèdes du Temps",
+        "type": "apothicaire"
+      },
+      {
+        "nom": "Maison du marchand",
+        "type": "demeure"
+      },
+      {
+        "nom": "Maison des marchands (guilde)",
+        "type": "guilde"
+      },
+      {
+        "nom": "Habitations",
+        "type": "maisons à pans de bois en encorbellement",
+        "module": "zones/05-village/05-habitations",
+        "etat": "existant dans index.html"
+      },
+      {
+        "nom": "Monastère et cloître",
+        "type": "monastère, au sud du village"
+      },
+      {
+        "nom": "Cimetière",
+        "type": "cimetière clos, au sud du village"
+      }
+    ],
+    "supprimes": [
+      {
+        "nom": "Église Saint-Michel",
+        "decision": "MOA 18/10/2026 : pas d'église au nord, supprimée strictement"
+      }
     ]
   },
   "personnages": {
-    "statut": "PNJ supprimés par la MOA le 11 octobre ; identifiants réservés depuis dans le dépôt — réintroduction à confirmer par la MOA",
+    "statut": "prévus, priorité basse : traités après les zones et l'horizon (T5 à T7) — décision MOA du 18/10/2026",
     "regle": "personnages indépendants des bâtiments : identité et état persistants, domicile référencé par ID (docs/CONTRACTS.md)",
     "reserves": [
-      { "id": "AA", "role": "palefrenier", "domicile": "village/ecuries", "dossier": "characters/AA-palefrenier", "statut": "prévu" },
-      { "id": "AB", "role": "tavernier", "domicile": "village/taverne", "dossier": "characters/AB-tavernier", "statut": "prévu" },
-      { "id": "AC", "role": "forgeron", "domicile": "village/forge", "dossier": "characters/AC-forgeron", "statut": "prévu" }
+      {
+        "id": "AA",
+        "role": "palefrenier",
+        "domicile": "village/ecuries",
+        "dossier": "characters/AA-palefrenier",
+        "statut": "prévu"
+      },
+      {
+        "id": "AB",
+        "role": "tavernier",
+        "domicile": "village/taverne",
+        "dossier": "characters/AB-tavernier",
+        "statut": "prévu"
+      },
+      {
+        "id": "AC",
+        "role": "forgeron",
+        "domicile": "village/forge",
+        "dossier": "characters/AC-forgeron",
+        "statut": "prévu"
+      }
     ],
     "principaux": [
-      { "nom": "Angie", "lot": "T7", "statut": "en attente", "fiche": "à rédiger par la MOA" },
-      { "nom": "Kara", "lot": "T7", "statut": "en attente", "fiche": "à rédiger par la MOA" }
+      {
+        "nom": "Angie",
+        "lot": "T7",
+        "statut": "en attente",
+        "fiche": "à rédiger par la MOA"
+      },
+      {
+        "nom": "Kara",
+        "lot": "T7",
+        "statut": "en attente",
+        "fiche": "à rédiger par la MOA"
+      }
     ],
     "cible_lot_T5": "une quarantaine de bots et personnages, chacun avec sa personnalité",
-    "contenu_fiche": ["id", "role", "domicile", "modele", "personnalite", "besoins", "relations", "routine par moment de la journée (T8)"]
+    "contenu_fiche": [
+      "id",
+      "role",
+      "domicile",
+      "modele",
+      "personnalite",
+      "besoins",
+      "relations",
+      "routine par moment de la journée (T8)"
+    ]
   },
   "temps": {
-    "moments": ["matin", "midi", "après-midi", "soirée", "nuit"],
+    "moments": [
+      "matin",
+      "midi",
+      "après-midi",
+      "soirée",
+      "nuit"
+    ],
     "lot_moments": "T8",
-    "saisons": ["printemps", "été", "automne", "hiver"],
+    "saisons": [
+      "printemps",
+      "été",
+      "automne",
+      "hiver"
+    ],
     "lot_saisons": "T9"
   }
 }

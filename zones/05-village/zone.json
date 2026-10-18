@@ -1,0 +1,30 @@
+{
+  "id": "village",
+  "zoneId": "Z05",
+  "label": "Village",
+  "visitable": true,
+  "status": "production (index.html)",
+  "contents": [
+    "place du marché ovale de 80 m × 28 m",
+    "fontaine centrale",
+    "écuries au nord, sur l'axe, porte d'entrée du village",
+    "rues et commerces de l'ébauche",
+    "monastère et cimetière au sud"
+  ],
+  "loading": "un chargement",
+  "buildings": [
+    "ecuries",
+    "taverne",
+    "forge",
+    "habitations"
+  ],
+  "coordinateSystem": "world meters (x est, y haut, z sud)",
+  "decision": "8 zones visitables, MOA 11/10 et 18/10/2026",
+  "placementStatus": "provisional",
+  "removed": [
+    {
+      "id": "eglise",
+      "decision": "MOA 18/10/2026 : pas d'église au nord, supprimée strictement"
+    }
+  ]
+}

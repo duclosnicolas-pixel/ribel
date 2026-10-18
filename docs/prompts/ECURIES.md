@@ -5,12 +5,12 @@ Tu reprends le chantier des **écuries du village RIBEL**, monde Three.js/WebXR 
 **Dépôt** : https://github.com/duclosnicolas-pixel/ribel
 
 ## Avant toute modification
-Lis directement sur GitHub, dans cet ordre : `AGENTS.md`, `CLAUDE.md`, `ARCHITECTURE.md`, `docs/PROJECT_STATE.md`, `docs/WORKFLOW.md`, `docs/CONTRACTS.md`, `zones/01-village/01-ecuries/manifest.json` et `zones/01-village/01-ecuries/README.md`. Vérifie l'état réel du code et des derniers commits.
+Lis directement sur GitHub, dans cet ordre : `AGENTS.md`, `CLAUDE.md`, `ARCHITECTURE.md`, `docs/PROJECT_STATE.md`, `docs/WORKFLOW.md`, `docs/CONTRACTS.md`, `zones/05-village/01-ecuries/manifest.json` et `zones/05-village/01-ecuries/README.md`. Vérifie l'état réel du code et des derniers commits.
 
 ## Gouvernance et méthode
 Je suis le maître d'ouvrage (MOA). Claude intervient comme MOE/AMOA et responsable technique ; ChatGPT comme AMOE/UX/développeur 3D. Les validations appartiennent au MOA. Une recette mobile n'est acquise que lorsque je la confirme explicitement.
 
-Travaille **uniquement** dans `zones/01-village/01-ecuries/` et dans des prévisualisations indépendantes, sauf autorisation de modifier un module partagé. Respecte le contrat `createBuilding(context, config)` et ses interfaces de cycle de vie, collisions, entrées, interactions, placement et ressources. Ne duplique pas le renderer, la caméra, les lumières globales ou la boucle principale du village.
+Travaille **uniquement** dans `zones/05-village/01-ecuries/` et dans des prévisualisations indépendantes, sauf autorisation de modifier un module partagé. Respecte le contrat `createBuilding(context, config)` et ses interfaces de cycle de vie, collisions, entrées, interactions, placement et ressources. Ne duplique pas le renderer, la caméra, les lumières globales ou la boucle principale du village.
 
 ## Références
 - Version 3D de travail : https://duclosnicolas-pixel.github.io/ribel/ecuries-v53.html (`ecuries-v53.html`).
@@ -23,7 +23,9 @@ Travaille **uniquement** dans `zones/01-village/01-ecuries/` et dans des prévis
 
 Les **lampes actuelles ne conviennent pas** : prévoir leur refonte historiquement plausible, mais ne pas modifier leurs modèles sans validation. Ne pas confondre cette réserve avec un rejet des commandes d'éclairage.
 
-Le croquis du MOA place les écuries **au nord du village**, en relation avec le chemin, l'église et la place. Les coordonnées actuelles sont provisoires ; contrôler orientation, raccordement et emprise avant intégration.
+Décision MOA du 2026-10-18 : les écuries sont **au nord du village, en plein sur l'axe de la rue nord**. Elles sont la porte d'entrée du village : on y dépose sa monture, puis on entre dans le village. **Il n'y a pas d'église au nord** (supprimée). Ancrage x 0, z −70, rotation 0 ; portail au sud, face à la rue nord (z −40,5). L'arrivée du chemin depuis l'Entrée reste à concevoir.
+
+Budget de rendu du module : **40 appels au plus** pour l'ensemble (la V53 en émet 2 167 ; voir `docs/PROJECT_STATE.md`).
 
 ## Travail demandé
 1. Auditer la V53, la maquette d'implantation et les contrats modulaires.

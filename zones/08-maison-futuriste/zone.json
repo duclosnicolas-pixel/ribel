@@ -1,0 +1,16 @@
+{
+  "id": "maison-futuriste",
+  "zoneId": "Z08",
+  "label": "Maison futuriste",
+  "visitable": true,
+  "status": "planned",
+  "contents": [
+    "au fond de la forêt",
+    "jamais visible depuis le reste du domaine",
+    "accès uniquement par un chemin à travers la forêt"
+  ],
+  "loading": "un chargement",
+  "buildings": [],
+  "coordinateSystem": "world meters (x est, y haut, z sud)",
+  "decision": "8 zones visitables, MOA 11/10 et 18/10/2026"
+}

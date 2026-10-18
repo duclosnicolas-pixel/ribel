@@ -1,0 +1,18 @@
+{
+  "id": "chateau-interieur",
+  "zoneId": "Z02",
+  "label": "Château intérieur",
+  "visitable": true,
+  "status": "planned",
+  "contents": [
+    "rez-de-chaussée",
+    "1er étage",
+    "2e étage",
+    "cave",
+    "sous-sol"
+  ],
+  "loading": "un niveau par chargement",
+  "buildings": [],
+  "coordinateSystem": "world meters (x est, y haut, z sud)",
+  "decision": "8 zones visitables, MOA 11/10 et 18/10/2026"
+}

@@ -8,25 +8,81 @@
   },
   "zones": [
     {
+      "id": "entree",
+      "zoneId": "Z01",
+      "label": "Entrée",
+      "path": "zones/01-entree",
+      "status": "planned"
+    },
+    {
+      "id": "chateau-interieur",
+      "zoneId": "Z02",
+      "label": "Château intérieur",
+      "path": "zones/02-chateau-interieur",
+      "status": "planned"
+    },
+    {
+      "id": "chateau-exterieur",
+      "zoneId": "Z03",
+      "label": "Château extérieur",
+      "path": "zones/03-chateau-exterieur",
+      "status": "planned"
+    },
+    {
+      "id": "lac",
+      "zoneId": "Z04",
+      "label": "Lac",
+      "path": "zones/04-lac",
+      "status": "planned"
+    },
+    {
       "id": "village",
-      "path": "zones/01-village",
+      "zoneId": "Z05",
+      "label": "Village",
+      "path": "zones/05-village",
       "status": "active-legacy"
     },
     {
-      "id": "chateau",
-      "path": "zones/02-chateau",
+      "id": "residences-invites",
+      "zoneId": "Z06",
+      "label": "Résidences des invités",
+      "path": "zones/06-residences-invites",
       "status": "planned"
     },
     {
-      "id": "campagne",
-      "path": "zones/03-campagne",
+      "id": "vergers-serre",
+      "zoneId": "Z07",
+      "label": "Vergers et serre exotique",
+      "path": "zones/07-vergers-serre",
       "status": "planned"
     },
     {
-      "id": "foret",
-      "path": "zones/04-foret",
+      "id": "maison-futuriste",
+      "zoneId": "Z08",
+      "label": "Maison futuriste",
+      "path": "zones/08-maison-futuriste",
       "status": "planned"
     }
   ],
-  "note": "Configuration cible : le moteur existant ne consomme pas encore ce fichier."
+  "decors": [
+    {
+      "id": "foret",
+      "label": "Forêt",
+      "visitable": false,
+      "role": "décor d'horizon ; seul le chemin vers la maison futuriste la traverse"
+    },
+    {
+      "id": "mur-enceinte",
+      "label": "Mur d'enceinte",
+      "visitable": false,
+      "role": "limite du monde, sur l'emprise de l'ancienne voie ferrée"
+    },
+    {
+      "id": "monde-lointain",
+      "label": "Monde lointain",
+      "visitable": false,
+      "role": "relief allégé, silhouettes des zones et ciel, toujours chargé (T4)"
+    }
+  ],
+  "note": "Huit zones visitables décidées par le MOA (11/10 et 18/10/2026). Configuration cible : le moteur existant ne consomme pas encore ce fichier."
 }

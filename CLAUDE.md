@@ -10,9 +10,9 @@
 - Ne pas modifier `index.html` ni intégrer une prévisualisation au village principal sans accord explicite.
 
 ## Organisation obligatoire
-- Zones : `zones/01-village/`, `02-chateau/`, `03-campagne/`, `04-foret/`.
-- Bâtiments indépendants dans leur zone : `01-ecuries/`, `02-taverne/`, `03-forge/`, etc.
-- Personnages indépendants de leurs bâtiments : `characters/AA-palefrenier/`, `AB-tavernier/`, `AC-forgeron/`.
+- Huit zones visitables, exactement (décision MOA) : `zones/01-entree/`, `02-chateau-interieur/`, `03-chateau-exterieur/`, `04-lac/`, `05-village/`, `06-residences-invites/`, `07-vergers-serre/`, `08-maison-futuriste/`. Forêt, mur d'enceinte et monde lointain sont des décors non visitables (`world/world.json`).
+- Bâtiments indépendants dans leur zone : `05-village/01-ecuries/`, `02-taverne/`, `03-forge/`, `05-habitations/`.
+- Personnages indépendants de leurs bâtiments : `characters/AA-palefrenier/`, `AB-tavernier/`, `AC-forgeron/` — prévus, priorité basse (T5 à T7).
 - Moteur partagé `core/`, monde `world/`, systèmes `systems/`, ressources `assets/`.
 - Identifiants stables, manifestes, coordonnées mondiales en mètres, cycle de vie explicite.
 - Une conversation ou un chantier par bâtiment/personnage est encouragé ; ne pas écraser le travail parallèle.
@@ -27,7 +27,8 @@
 
 ## Historique à respecter
 - Écuries : `ecuries-v53.html` est la référence de travail ; V54 rejetée ; modèles de lampes actuels rejetés pour une refonte ultérieure. Ne pas confondre `ribel-ecuries-nord-preview.html` (volumes provisoires) avec le modèle V53 intégré.
-- La maquette de situation des écuries est au nord/nord-est de l'église ; emplacement définitif à valider sur le croquis du MOA.
+- Écuries au nord du village, en plein sur l'axe de la rue nord : porte d'entrée du village (on dépose sa monture, puis on entre). Ancrage x 0, z −70, portail au sud face à la rue.
+- **Pas d'église au nord** : supprimée strictement par le MOA le 2026-10-18 ; ne pas la réintroduire.
 - RIBEL : Touraine / Loire, XVe siècle, fabrication artisanale sans précision industrielle ; véritable 3D Three.js/WebXR, pas d'images de substitution.
 - Téléphone cible : Samsung Galaxy Z Fold 6.
 

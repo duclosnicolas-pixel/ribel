@@ -1,0 +1,15 @@
+{
+  "id": "vergers-serre",
+  "zoneId": "Z07",
+  "label": "Vergers et serre exotique",
+  "visitable": true,
+  "status": "planned",
+  "contents": [
+    "vergers",
+    "immense verrière à fruits exotiques"
+  ],
+  "loading": "un chargement",
+  "buildings": [],
+  "coordinateSystem": "world meters (x est, y haut, z sud)",
+  "decision": "8 zones visitables, MOA 11/10 et 18/10/2026"
+}
