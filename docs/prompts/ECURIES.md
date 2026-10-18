@@ -23,9 +23,11 @@ Travaille **uniquement** dans `zones/05-village/01-ecuries/` et dans des prévis
 
 Les **lampes actuelles ne conviennent pas** : prévoir leur refonte historiquement plausible, mais ne pas modifier leurs modèles sans validation. Ne pas confondre cette réserve avec un rejet des commandes d'éclairage.
 
-Décision MOA du 2026-10-18 : les écuries sont **au nord du village, en plein sur l'axe de la rue nord**. Elles sont la porte d'entrée du village : on y dépose sa monture, puis on entre dans le village. **Il n'y a pas d'église au nord** (supprimée). Ancrage x 0, z −70, rotation 0 ; portail au sud, face à la rue nord (z −40,5). L'arrivée du chemin depuis l'Entrée reste à concevoir.
+Décision MOA du 2026-10-18 : les écuries sont **au nord du village, en plein sur l'axe de la rue nord**. Elles sont la porte d'entrée du village : on y dépose sa monture, puis on entre dans le village. **Il n'y a pas d'église au nord** (supprimée). Ancrage x 0, z −72, rotation 0 ; portail au sud, face à la rue nord (z −39,7). L'arrivée du chemin depuis l'Entrée reste à concevoir.
 
-Budget de rendu du module : **40 appels au plus** pour l'ensemble (la V53 en émet 2 167 ; voir `docs/PROJECT_STATE.md`).
+**Extraction réalisée par la MOE le 2026-10-18** : la V53 est intégrée telle quelle au village par le module `zones/05-village/01-ecuries/index.js` ; sa géométrie est **générée** depuis `ecuries-v53.html` par `tools/extract-ecuries-v53.mjs`. Continue donc la modélisation dans la page autonome (nouvelle version, ex. `ecuries-v55.html`), en respectant les jalons et les noms listés dans `zones/05-village/01-ecuries/README.md`. Ne modifie jamais `v53-geometry.js` à la main. Ne crée plus de maquette en volumes simplifiés pour l'implantation : la prévisualisation `ribel-ecuries-nord-preview.html` montre le vrai modèle.
+
+Budget de rendu du module : **40 appels au plus** pour l'ensemble. Il est tenu par le regroupement automatique (32 à 36 appels) ; un objet qui doit bouger doit être déclaré comme porte ou comme flamme, sinon il sera figé.
 
 ## Travail demandé
 1. Auditer la V53, la maquette d'implantation et les contrats modulaires.

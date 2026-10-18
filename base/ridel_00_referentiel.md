@@ -45,7 +45,7 @@
 
 ## État au 18 octobre
 - Village (production, `index.html`) : refonte graphique du 13 octobre ; église du nord supprimée le 18 octobre (sauvegarde `index-avant-suppression-eglise.html`). La rue nord débouche sur l'emplacement des écuries.
-- Écuries : référence de travail `ecuries-v53.html` (U de 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail ; jour/nuit, lampes, foyer, portes). V54 rejetée. Lampes à redessiner. Ancrage x 0, z −70, rotation 0 ; portail au sud face à la rue nord (z −40,5), parvis de 5,5 m. Maquette d'implantation : `ribel-ecuries-nord-preview.html`.
+- Écuries : référence de travail `ecuries-v53.html` (U de 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail ; jour/nuit, lampes, foyer, portes). V54 rejetée. Lampes à redessiner. Ancrage x 0, z −72, rotation 0 ; portail au sud face à la rue nord (z −39,7). Module extrait le 18 octobre (`zones/05-village/01-ecuries/index.js`, géométrie V53 à l'identique) : le vrai modèle est visible dans le village sur `ribel-ecuries-nord-preview.html` (32 à 36 appels de rendu pour les écuries, 53 à 76 pour l'ensemble). L'ancienne maquette en volumes, jugée hors sujet et flottante par la MOA, est retirée.
 - Architecture modulaire : dossiers des 8 zones, manifestes et contrats v0.1 posés ; moteur non encore extrait de `index.html`, zones non chargées dynamiquement.
 - Taverne, forge : dossiers prévus, non modélisés.
 
@@ -53,11 +53,11 @@
 | Page | Erreurs JS | Appels de rendu / image | Triangles / image |
 |---|---|---|---|
 | `index.html` (sans église) | aucune | 23 à 30 selon la vue | 27 000 |
-| `ribel-ecuries-nord-preview.html` | aucune | 24 à 126 selon la vue | 28 000 |
+| `ribel-ecuries-nord-preview.html` (village + vraies écuries) | aucune | 53 à 76 selon la vue | 134 000 à 139 000 |
 | `ecuries-v53.html` | aucune | 2 167 | 179 000 |
 
 - Le village tient les budgets Quest 2 (≤ 100 appels, ≤ 300 000 triangles par œil).
-- Écuries V53 : environ 20 fois le budget d'appels. Condition d'intégration : fusion des pièces statiques par matériau, instanciation des répétitions, matériaux Lambert, une seule ombre directionnelle, lampes en émissif avec deux lumières au plus. Cible : ≤ 40 appels pour l'ensemble.
+- Écuries V53 seules : 2 167 appels dans leur page autonome ; intégrées au village après regroupement des pièces fixes et portes pivotant dans le shader : 32 à 36 appels, sans écart visuel.
 
 ## Choix techniques
 - WebXR + Three.js r170, un seul code pour Quest 2 (VR) et Galaxy Z Fold 6 (tactile).

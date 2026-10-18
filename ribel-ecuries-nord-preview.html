@@ -529,57 +529,16 @@ function main(THREE) {
   }
   const obstacles = [lowerMesh, upperMesh, roofMesh];
 
-  // Écuries RIBEL au nord du village, sur l'axe de la rue nord (décision MOA du 18/10/2026) :
-  // on dépose sa monture, puis on entre dans le village par le portail sud des écuries.
-  // Maquette 3D d'implantation ; la modélisation détaillée V53 reste dans sa page indépendante.
-  // La modélisation détaillée V53 est conservée dans sa page indépendante.
-  const STABLE_X=0, STABLE_Z=-70;   // portail (z local +29,5) à z -40,5 : parvis de 5,5 m au bout de la rue nord
-  const stableGroup=new THREE.Group();stableGroup.position.set(STABLE_X,0,STABLE_Z);scene.add(stableGroup);
-  const sm={stone:new THREE.MeshLambertMaterial({color:0xbba88c}),wood:new THREE.MeshLambertMaterial({color:0x64462f}),roof:new THREE.MeshLambertMaterial({color:0x46525c,side:THREE.DoubleSide}),iron:new THREE.MeshLambertMaterial({color:0x343638}),floor:new THREE.MeshLambertMaterial({color:0x9c9080})};
-  function stableBox(w,h,d,x,y,z,m){
-    const o=new THREE.Mesh(unitBox,m);o.scale.set(w,h,d);o.position.set(x,y,z);stableGroup.add(o);return o;
+  // Écuries RIBEL au nord du village, en plein sur l'axe de la rue nord (décision MOA du 18/10/2026) :
+  // on dépose sa monture, puis on entre dans le village. Modèle réel : module de bâtiment
+  // zones/05-village/01-ecuries (modélisation V53 extraite à l'identique), chargé après le moteur.
+  const STABLE = { x: 0, y: 0, z: -72, rotationY: 0 };   // ancrage du manifeste ; portail à z -39,7
+  let stables = null;                                      // module de bâtiment, une fois chargé
+  {
+    // Raccord pavé : du bout de la rue nord (z -35) à la bande de pierre devant le portail (z -35,8).
+    const link = new THREE.Mesh(new THREE.PlaneGeometry(4.8, 1.4), new THREE.MeshLambertMaterial({ color: 0x9a8f7e }));
+    link.rotation.x = -Math.PI / 2; link.position.set(0, 0.012, -35.3); scene.add(link);
   }
-  function stableRoof(x0,x1,z0,z1,y0,y1){
-    const g=new THREE.BufferGeometry();
-    g.setAttribute('position',new THREE.Float32BufferAttribute([x0,y0,z0,x1,y0,z0,x1,y1,z1,x0,y0,z0,x1,y1,z1,x0,y1,z1],3));
-    g.computeVertexNormals();stableGroup.add(new THREE.Mesh(g,sm.roof));
-  }
-  stableBox(60,.08,60,0,.01,0,sm.floor);
-  // Corps nord : six boxes fermés, faîtage et deux versants.
-  stableBox(38,5.4,.5,0,2.7,-22,sm.stone);
-  for(let i=0;i<7;i++)stableBox(.34,4.5,.4,-18+i*6,2.3,-10.8,sm.wood);
-  for(let i=0;i<6;i++){
-    const x=-15+i*6;stableBox(5.2,2.9,.23,x,1.55,-10.6,sm.wood);
-    for(const y of [.8,2.2])stableBox(5.0,.11,.28,x,y,-10.43,sm.iron);
-  }
-  stableRoof(-19,19,-23,-16,5.2,9.3);stableRoof(-19,19,-16,-9,9.3,5.2);
-  // Remise ouest, quatre boxes de jour à l'est.
-  for(const side of [-1,1]){
-    stableBox(.5,5.1,28,side*26,2.55,0,sm.stone);
-    for(const z of [-14,-7,0,7,14])stableBox(.38,4.6,.38,side*19,2.3,z,sm.wood);
-    stableRoof(side===-1?-27:18,side===-1?-22:22,-15,15,5.1,7.2);
-    stableRoof(side===-1?-22:22,side===-1?-18:27,-15,15,7.2,5.1);
-  }
-  for(const z of [-10.5,-3.5,3.5,10.5]){
-    stableBox(.24,1.6,6.2,18.7,1.0,z,sm.wood);
-    for(let k=0;k<9;k++)stableBox(.055,.75,.055,18.62,2.2,z-2.75+k*.69,sm.iron);
-  }
-  // Logis au sud-est, enceinte et ouverture du portail vers le chemin.
-  stableBox(7.8,4.9,10,22,2.45,20,sm.stone);
-  stableBox(1.8,2.8,.15,20.4,1.4,25.12,sm.wood);
-  stableRoof(17.4,22,14.5,25.5,4.9,7.7);stableRoof(22,26.6,14.5,25.5,7.7,4.9);
-  for(const x of [-17,17])stableBox(25,1.7,.5,x,.85,29.5,sm.stone);
-  for(const x of [-29.5,29.5])stableBox(.5,1.7,59,x,.85,0,sm.stone);
-  for(const x of [-4.5,4.5])stableBox(.75,2.6,.75,x,1.3,29.5,sm.stone);
-  // Parvis pavé reliant le bout de la rue nord au portail des écuries, dans l'axe.
-  const pathMat=new THREE.MeshLambertMaterial({color:0x8e816d});
-  function stablePath(x0,z0,x1,z1){
-    const dx=x1-x0,dz=z1-z0,len=Math.hypot(dx,dz);
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(4.8,len),pathMat);
-    m.rotation.x=-Math.PI/2;m.rotation.z=Math.atan2(dx,dz);
-    m.position.set((x0+x1)/2,.065,(z0+z1)/2);scene.add(m);
-  }
-  stablePath(0,-33,0,-41.5);
 
   // ---------- Au sud du village : cimetière clos et monastère ----------
   {
@@ -707,9 +666,13 @@ function main(THREE) {
     if ((x * x) / (ia * ia) + (z * z) / (ib * ib) <= 1) return true;
     const eastWest = Math.abs(z) < STREET_HALF - 0.4 && Math.abs(x) <= FACADE_A + STREET_LEN - 0.6;
     const northSouth = Math.abs(x) < STREET_HALF - 0.4 && Math.abs(z) <= FACADE_B + STREET_LEN - 0.6;
-    const yard=x>STABLE_X-28&&x<STABLE_X+28&&z>STABLE_Z-28&&z<STABLE_Z+28;
-    const nearSegment=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));return Math.hypot(x-ax-t*dx,z-az-t*dz)<3;};
-    return eastWest||northSouth||yard||nearSegment(0,-33,0,-41.5);
+    const link = Math.abs(x) < STREET_HALF - 0.4 && z <= -(FACADE_B + STREET_LEN) + 1 && z >= -36.2;
+    let stableFloor = false;
+    if (stables) {
+      const l = stables.root.worldToLocal(new THREE.Vector3(x, 0, z));
+      stableFloor = stables.isFloor(l.x, l.z);
+    }
+    return eastWest || northSouth || link || stableFloor;
   }
 
   // ---------- Repère de téléportation, arc en pointillé, fondu ----------
@@ -797,13 +760,42 @@ function main(THREE) {
   const ndc = new THREE.Vector2();
   const walkSurfaces = new Set([ground, paving, bands]);
   const pickTargets = [ground, paving, bands, ...obstacles];
+  const tI = new THREE.Vector3();
+  function stableInteractionAt(point, head) {
+    let best = null, bestD = Infinity;
+    for (const it of stables.getInteractionPoints()) {
+      const w = stables.root.localToWorld(tI.set(it.localPosition.x, it.localPosition.y, it.localPosition.z));
+      const d = w.distanceTo(point);
+      if (d < it.radius && w.distanceTo(head) < 6 && d < bestD) { best = it; bestD = d; }
+    }
+    return best;
+  }
   function onTap(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
     ndc.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
     raycaster.setFromCamera(ndc, camera);
     const hit = raycaster.intersectObjects(pickTargets, false)[0];
+    const head = headPos();
+    // Écuries : toucher une porte, le portail, le foyer ou une lampe à portée de main l'actionne ;
+    // toucher le sol de la cour y téléporte ; toucher un mur ne fait rien.
+    const sHit = stables ? raycaster.intersectObject(stables.root, true)[0] : null;
+    if (sHit && (!hit || sHit.distance < hit.distance)) {
+      const it = stableInteractionAt(sHit.point, head);
+      if (it) {
+        const on = it.action();
+        $('hint').textContent = it.label.charAt(0).toUpperCase() + it.label.slice(1) + (it.kind === 'door' ? (on ? ' ouverte' : ' fermée') : (on ? ' allumé' + (it.kind === 'lamp' ? 'es' : '') : ' éteint' + (it.kind === 'lamp' ? 'es' : '')));
+        return;
+      }
+      const n = sHit.face ? sHit.face.normal.clone().transformDirection(sHit.object.matrixWorld) : null;
+      const sp = sHit.point;
+      const sOk = !!n && n.y > 0.7 && sp.y < 0.4 && isWalkable(sp.x, sp.z) && Math.hypot(sp.x - head.x, sp.z - head.z) <= PHONE_MAX;
+      showMarker(sp.x, sp.z, sOk);
+      markerFlash = 0.7;
+      if (sOk) teleportTo(sp.x, sp.z);
+      return;
+    }
     if (!hit) return;
-    const p = hit.point, head = headPos();
+    const p = hit.point;
     const ok = walkSurfaces.has(hit.object) && isWalkable(p.x, p.z) && Math.hypot(p.x - head.x, p.z - head.z) <= PHONE_MAX;
     showMarker(p.x, p.z, ok);
     markerFlash = 0.7;
@@ -1149,6 +1141,7 @@ function main(THREE) {
     updateFade(dt);
     updateDrops(elapsed);
     rippleTex.rotation += dt * 0.04;
+    if (stables) stables.update(dt);
     if (markerFlash > 0) { markerFlash -= dt; if (markerFlash <= 0) marker.visible = false; }
     renderer.render(scene, camera);
     lastCalls = renderer.info.render.calls;
@@ -1157,15 +1150,28 @@ function main(THREE) {
     if (firstFrame) { firstFrame = false; $('loading').hidden = true; }
   });
 
-  const stableNav=document.createElement('div');
-  stableNav.style.cssText='position:fixed;right:12px;bottom:96px;z-index:30;display:flex;gap:5px';
-  stableNav.innerHTML='<button id="stable-jump" style="background:#243f32;color:white;padding:9px;border-radius:6px">Écuries nord</button><a href="./ecuries-v53.html" target="_blank" rel="noopener" style="background:#243f32;color:white;padding:9px;border-radius:6px;text-decoration:none">Détail V53</a>';
+  // Chargement du module de bâtiment des écuries (contrat createBuilding).
+  Promise.all([import('./zones/05-village/01-ecuries/index.js'), import('./core/contracts.js')]).then(([{ createBuilding }, { assertBuildingInstance }]) => {
+    const t0 = performance.now();
+    stables = assertBuildingInstance(createBuilding({ THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy() }, { placement: STABLE, merge: new URLSearchParams(location.search).get('fusion') !== '0' }));   // ?fusion=0 : pièces séparées, pour comparaison
+    scene.add(stables.root);
+    stables.loadMs = Math.round(performance.now() - t0);
+    console.info('Écuries chargées', stables.stats, stables.loadMs + ' ms');
+  }).catch((err) => { console.error(err); $('hint').textContent = "Les écuries ne se sont pas chargées : " + err.message; });
+
+  const stableNav = document.createElement('div');
+  stableNav.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 112px);z-index:30;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;pointer-events:none';
+  stableNav.innerHTML = '<button id="stable-jump" style="pointer-events:auto;background:#243f32;color:white;padding:9px;border-radius:6px;min-height:40px">Devant les écuries</button><button id="stable-yard" style="pointer-events:auto;background:#243f32;color:white;padding:9px;border-radius:6px;min-height:40px">Dans la cour</button><a href="./ecuries-v53.html" target="_blank" rel="noopener" style="pointer-events:auto;background:#243f32;color:white;padding:9px 11px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;min-height:22px">Détail V53</a>';
   document.body.appendChild(stableNav);
-  document.getElementById('stable-jump').addEventListener('click',()=>{rig.position.set(STABLE_X,0,-37);rig.rotation.y=0;rig.updateMatrixWorld(true);updateHint();});
+  const jump = (x, z, yaw) => { rig.position.set(x, 0, z); rig.rotation.y = yaw; pitch = 0; camera.rotation.x = 0; rig.updateMatrixWorld(true); updateHint(); };
+  $('stable-jump').addEventListener('click', () => jump(STABLE.x, STABLE.z + 38.2, 0));
+  $('stable-yard').addEventListener('click', () => jump(STABLE.x, STABLE.z + 24, 0));
   window.ridelBanc = {
     state: () => ({ x: rig.position.x, z: rig.position.z, yaw: rig.rotation.y, fps, calls: lastCalls, tris: lastTris, teleports, houses: houses.length, xr: xrText }),
     walkable: isWalkable,
-    goTo: (x, z, yaw) => { rig.position.set(x, 0, z); if (yaw !== undefined) rig.rotation.y = yaw; rig.updateMatrixWorld(true); },
+    goTo: (x, z, yaw, p) => { rig.position.set(x, 0, z); if (yaw !== undefined) rig.rotation.y = yaw; if (p !== undefined) { pitch = p; camera.rotation.x = p; } rig.updateMatrixWorld(true); },
+    stables: () => stables && { stats: stables.stats, loadMs: stables.loadMs, interactions: stables.getInteractionPoints().map((i) => ({ id: i.id, open: i.isOpen() })) },
+    interact: (id) => { const it = stables && stables.getInteractionPoints().find((i) => i.id === id); return it ? it.action() : null; },
   };
 }
 </script>

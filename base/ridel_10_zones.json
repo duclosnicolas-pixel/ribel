@@ -94,12 +94,13 @@
           "reference": "ecuries-v53.html",
           "placement": {
             "x": 0,
-            "z": -70,
+            "z": -72,
             "rotationY": 0,
-            "portail": "au sud, face à la rue nord (z −40,5)",
+            "portail": "au sud, face à la rue nord (z −39,7)",
             "statut": "axe décidé MOA 18/10 ; profondeur proposée MOE"
           },
-          "statut": "prévisualisation, extraction en module à faire (≤ 40 appels)"
+          "statut": "module extrait, vrai modèle dans la prévisualisation du village ; recette MOA attendue",
+          "module": "zones/05-village/01-ecuries/index.js (géométrie V53 extraite à l'identique)"
         },
         {
           "id": "taverne",

@@ -32,14 +32,17 @@ Bâtiments du village : `zones/05-village/01-ecuries`, `02-taverne`, `03-forge`,
 - URL de production : https://duclosnicolas-pixel.github.io/ribel/
 - `index.html` : ne pas modifier sans accord du MOA. Dernière modification : suppression de l'église du nord (décision MOA du 2026-10-18) ; la rue nord débouche désormais sur l'emplacement des écuries.
 - Sauvegardes : `index-avant-suppression-eglise.html` (état du 13/10), `index-avant-ecuries-nord.html`.
-- Prévisualisation d'implantation des écuries : https://duclosnicolas-pixel.github.io/ribel/ribel-ecuries-nord-preview.html — écuries sur l'axe, portail face à la rue nord, sans église.
+- Prévisualisation du village avec les écuries : https://duclosnicolas-pixel.github.io/ribel/ribel-ecuries-nord-preview.html — **vrai modèle V53**, au sol, sur l'axe, portail face à la rue nord, sans église. Boutons « Devant les écuries » et « Dans la cour » ; portes, portail, foyer et lampes s'actionnent au doigt.
+- `ribel-ecuries-nord-v2.html` (AMOE, 18/10 soir) : **obsolète** — écuries hors axe (x 43) et contournement d'une église supprimée, contraires à la décision du MOA.
 
 ## Écuries
 - Référence 3D de travail : https://duclosnicolas-pixel.github.io/ribel/ecuries-v53.html (`ecuries-v53.html`). V54 rejetée.
 - Ensemble en U : 6 boxes de nuit, aile ouest remise, aile est 4 boxes de jour, logement du palefrenier, enceinte, cour et portail.
 - Modes Jour/Nuit, lampes commutables, foyer et portes interactives dans la référence autonome.
 - **Les modèles actuels des lampes ne plaisent pas au MOA** : refonte historique à proposer/valider, sans casser les commandes.
-- Ancrage : x 0, z −70, rotation 0 (axe et position nord décidés par le MOA ; profondeur proposée par la MOE). Portail au sud à z −40,5, parvis pavé de 5,5 m jusqu'au bout de la rue nord (z −35). Emprise x −30 à 30, z −100 à −40,5.
+- Ancrage : x 0, z −72, rotation 0 (axe et position nord décidés par le MOA ; profondeur proposée par la MOE). Portail au sud à z −39,7, bande de pierre jusqu'à z −35,8, raccord pavé jusqu'au bout de la rue nord (z −35). Emprise x −30,5 à 30,5, z −100 à −35,8.
+- **Module extrait le 2026-10-18 (MOE)** : `zones/05-village/01-ecuries/index.js`, géométrie V53 reprise à l'identique par `tools/extract-ecuries-v53.mjs`. Prévisualisation du module seul : https://duclosnicolas-pixel.github.io/ribel/previews/ecuries-module.html. Retour MOA du 18/10 traité : l'ancienne maquette en volumes simplifiés « n'avait rien à voir » avec la modélisation et flottait (boîtes centrées posées comme si leur base était à zéro : murs entre 0,85 et 2,55 m, à hauteur de menton) ; elle est remplacée par le vrai modèle, posé au sol.
+- La modélisation continue dans la page autonome ; une nouvelle version validée est réintégrée en relançant l'extraction (règles dans le README du module).
 - Point ouvert : arrivée du chemin depuis l'Entrée (Z01), par le nord ou par un côté.
 
 ## Taverne
@@ -61,19 +64,20 @@ Navigateur sans écran, rendu logiciel : contrôle de chargement et de charge, *
 | Page | Erreurs JS | Appels de rendu / image | Triangles / image |
 |---|---|---|---|
 | `index.html` (sans église) | aucune | 23 à 30 selon la vue | 27 000 |
-| `ribel-ecuries-nord-preview.html` | aucune | 24 à 126 selon la vue | 28 000 |
+| `ribel-ecuries-nord-preview.html` (village + vraies écuries) | aucune | 53 à 76 selon la vue | 134 000 à 139 000 |
+| `previews/ecuries-module.html` (module seul) | aucune | 32 à 36 | 110 000 |
 | `ecuries-v53.html` | aucune | 2 167 | 179 000 |
 
 - Budgets Quest 2 par œil : 72 i/s, ≤ 100 appels, ≤ 300 000 triangles. Le village les tient.
-- La maquette volumétrique des écuries dépasse déjà 100 appels quand elle est dans le champ (un maillage par pièce) : sans conséquence pour une maquette, mais confirme la contrainte du module.
+- Écuries intégrées : regroupement des pièces fixes par matériau et portes pivotant dans le shader ; de 1 230–1 622 appels (pièces séparées) à 53–76, **sans écart visuel** (comparaison pixel à pixel, portes fermées et ouvertes).
 - **Dette technique écuries V53** : environ 20 fois le budget d'appels (maillages isolés, pièces répétées non instanciées, matériaux PBR, ombres PCF douces, 10 lumières ponctuelles). Condition d'intégration : fusion des pièces statiques par matériau, instanciation des répétitions, matériaux Lambert, une seule ombre directionnelle, lampes en émissif avec deux lumières au plus. Cible : ≤ 40 appels pour l'ensemble.
 
 ## Point restant à arbitrer
 - Référentiels : `base/` (décisions MOA, registres) et ce document coexistent ; fusion dans `docs/` proposée par la MOE.
 
 ## Prochaine séquence recommandée
-1. Recette MOA de la suppression de l'église et de l'implantation des écuries sur l'axe (Fold 6).
-2. Extraire V53 dans `zones/05-village/01-ecuries/` sans renderer secondaire, en ramenant le module sous 40 appels de rendu.
-3. Prévisualiser l'assemblage sur une carte indépendante.
+1. Recette MOA sur Fold 6 de la prévisualisation du village avec les vraies écuries.
+2. Refonte des lampes dans la page autonome (AMOE), puis nouvelle extraction (MOE).
+3. Arrivée du chemin depuis l'Entrée jusqu'aux écuries.
 4. Poursuivre la taverne dans son dossier ; personnages plus tard.
 5. Fusionner dans le village principal seulement sur accord MOA.

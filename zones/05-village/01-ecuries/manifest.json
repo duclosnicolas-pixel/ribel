@@ -7,19 +7,19 @@
   "placement": {
     "x": 0,
     "y": 0,
-    "z": -70,
+    "z": -72,
     "rotationY": 0,
     "status": "axe et position nord décidés par le MOA le 18/10/2026 ; profondeur proposée par la MOE",
     "logique": "porte d'entrée du village : on dépose sa monture aux écuries puis on entre dans le village par la rue nord",
-    "portail": "au sud (z local +29,5), face à la rue nord, à z monde -40,5 ; parvis pavé de 5,5 m jusqu'au bout de la rue (z -35)",
+    "portail": "au sud (z local +32,3), face à la rue nord, à z monde −39,7 ; bande de pierre jusqu'à z −35,8, raccord pavé jusqu'au bout de la rue (z −35)",
     "emprise_monde": {
       "x": [
-        -30,
-        30
+        -30.5,
+        30.5
       ],
       "z": [
         -100,
-        -40.5
+        -35.8
       ]
     }
   },
@@ -32,14 +32,38 @@
     "enceinte",
     "portail"
   ],
-  "status": "legacy-preview-awaiting-extraction",
-  "note": "V53 autonome : ne pas considérer la maquette de situation comme la géométrie finale.",
+  "status": "module-extracted-awaiting-moa-recette",
+  "note": "La géométrie intégrée est celle de la V53, extraite à l'identique ; l'ancienne maquette en volumes simplifiés est retirée.",
   "zoneId": "Z05",
   "budget": {
     "appels_de_rendu_max": 40,
-    "source": "contrôle MOE du 18/10/2026 (V53 : 2 167 appels)"
+    "mesure_2026-10-18": {
+      "module_seul": "32 à 36 appels, 110 000 triangles",
+      "dans_le_village": "53 à 76 appels au total, 134 000 à 139 000 triangles",
+      "sans_regroupement": "1 230 à 1 622 appels",
+      "ecart_visuel": "aucun (comparaison pixel à pixel, portes fermées et ouvertes)"
+    },
+    "source": "contrôle MOE, navigateur sans écran — pas une recette sur appareil"
   },
   "openPoints": [
-    "arrivée du chemin depuis l'Entrée (Z01) : par le nord ou par un côté, à concevoir avec la MOA"
-  ]
+    "arrivée du chemin depuis l'Entrée (Z01) : par le nord ou par un côté, à concevoir avec la MOA",
+    "refonte des lampes : à faire dans la page autonome, puis nouvelle extraction"
+  ],
+  "module": {
+    "entree": "index.js",
+    "contrat": "createBuilding(context, config) → { root, update, dispose, getColliders, getInteractionPoints, isFloor }",
+    "geometrie": "v53-geometry.js (généré, ne pas modifier à la main)",
+    "generateur": "tools/extract-ecuries-v53.mjs",
+    "dependances": [
+      "core/static-merge.js",
+      "core/hinged-parts.js"
+    ],
+    "previsualisation_module": "../../../previews/ecuries-module.html",
+    "options": {
+      "placement": "ancrage monde",
+      "merge": "regroupement des pièces fixes (défaut : oui)",
+      "dynamicLights": "lumières ponctuelles de la V53 (défaut : non, réservé au lot T8)",
+      "ground": "sol d'herbe de la scène autonome (défaut : non)"
+    }
+  }
 }

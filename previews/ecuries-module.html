@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>RIBEL · Module des écuries</title>
+<style>
+:root { --ink: #16201b; --glass: #16201bdd; --linen: #f3ecdf; --rule: #a7b3a3; --ok: #9ccf9a; --over: #e59a87; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #c4d0cf; color: var(--linen); font: 14px/1.4 system-ui, sans-serif; }
+canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.panel { position: fixed; background: var(--glass); border-radius: 10px; padding: 10px 12px; }
+#info { top: 12px; left: 12px; right: 12px; max-width: 520px; }
+#info strong { display: block; font-size: 15px; }
+#stats { font: 600 12px/1.5 ui-monospace, monospace; margin-top: 6px; }
+#stats b[data-ok="1"] { color: var(--ok); } #stats b[data-ok="0"] { color: var(--over); }
+#bar { bottom: 12px; left: 12px; right: 12px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+button { min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--rule); background: #2f4438; color: var(--linen); font: inherit; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="panel" id="info"><strong>Écuries — module de bâtiment seul</strong>
+<span>Modélisation V53 extraite à l'identique, éclairée comme le village. Glisser pour tourner autour ; toucher une porte pour l'ouvrir.</span>
+<div id="stats">Chargement…</div></div>
+<div class="panel" id="bar">
+  <button data-view="portail">Portail</button><button data-view="cour">Cour</button><button data-view="haut">Vue haute</button><button data-view="logis">Logis</button>
+  <button id="doors">Ouvrir les portes</button><button id="fusion">Pièces séparées</button>
+</div>
+<script type="module">
+const THREE = await import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js');
+const { createBuilding } = await import('../zones/05-village/01-ecuries/index.js');
+const { assertBuildingInstance } = await import('../core/contracts.js');
+
+const params = new URLSearchParams(location.search);
+const merge = params.get('fusion') !== '0';
+document.getElementById('fusion').textContent = merge ? 'Pièces séparées' : 'Pièces regroupées';
+document.getElementById('fusion').onclick = () => { params.set('fusion', merge ? '0' : '1'); location.search = params.toString(); };
+
+// Éclairage et rendu identiques au village (index.html) : c'est ainsi que le bâtiment y apparaîtra.
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xc5d3dc);
+scene.fog = new THREE.Fog(0xc5d3dc, 80, 480);
+scene.add(new THREE.HemisphereLight(0xe9eef3, 0x8b8572, 1.4));
+const sun = new THREE.DirectionalLight(0xfff0d8, 2.2); sun.position.set(-60, 90, 40); scene.add(sun);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400, 20, 20), new THREE.MeshLambertMaterial({ color: 0x849778 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; scene.add(ground);
+const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 600);
+
+const t0 = performance.now();
+const building = assertBuildingInstance(createBuilding({ THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy() }, { merge }));
+const loadMs = Math.round(performance.now() - t0);
+scene.add(building.root);
+
+// Vues : [x, y, z] de l'œil, [x, y, z] visé (repère local des écuries, portail au sud).
+const views = { portail: [[0, 1.6, 42], [0, 2, 20]], cour: [[0, 1.6, 22], [0, 2.2, -14]], haut: [[0, 62, 66], [0, 0, 4]], logis: [[8, 1.6, 30], [22, 2, 22]] };
+let orbit = { target: new THREE.Vector3(), yaw: 0, pitch: 0, dist: 1 };
+function setView(name) {
+  const [eye, at] = views[name];
+  orbit.target.set(...at);
+  const d = new THREE.Vector3(...eye).sub(orbit.target);
+  orbit.dist = d.length(); orbit.yaw = Math.atan2(d.x, d.z); orbit.pitch = Math.asin(d.y / orbit.dist);
+  applyOrbit();
+}
+function applyOrbit() {
+  orbit.pitch = Math.max(-0.2, Math.min(1.45, orbit.pitch));
+  const c = Math.cos(orbit.pitch);
+  camera.position.set(orbit.target.x + orbit.dist * c * Math.sin(orbit.yaw), Math.max(0.4, orbit.target.y + orbit.dist * Math.sin(orbit.pitch)), orbit.target.z + orbit.dist * c * Math.cos(orbit.yaw));
+  camera.lookAt(orbit.target);
+}
+document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+setView('portail');
+
+let allOpen = false;
+document.getElementById('doors').onclick = () => {
+  allOpen = !allOpen;
+  for (const it of building.getInteractionPoints()) if (it.kind === 'door' && it.isOpen() !== allOpen) it.action();
+  document.getElementById('doors').textContent = allOpen ? 'Fermer les portes' : 'Ouvrir les portes';
+};
+
+// Glisser : tourner autour ; toucher : actionner l'élément le plus proche du point touché.
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), w = new THREE.Vector3();
+let drag = null;
+canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY, moved: false }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (Math.hypot(dx, dy) > 6) drag.moved = true;
+  if (!drag.moved) return;
+  drag.x = e.clientX; drag.y = e.clientY;
+  orbit.yaw -= dx * 0.005; orbit.pitch += dy * 0.004; applyOrbit();
+});
+canvas.addEventListener('pointerup', (e) => {
+  const tap = drag && !drag.moved; drag = null;
+  if (!tap) return;
+  const r = canvas.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObject(building.root, true)[0];
+  if (!hit) return;
+  let best = null, bestD = Infinity;
+  for (const it of building.getInteractionPoints()) {
+    const d = building.root.localToWorld(w.set(it.localPosition.x, it.localPosition.y, it.localPosition.z)).distanceTo(hit.point);
+    if (d < it.radius && d < bestD) { best = it; bestD = d; }
+  }
+  if (best) best.action();
+});
+canvas.addEventListener('wheel', (e) => { orbit.dist = Math.max(3, Math.min(160, orbit.dist * Math.exp(e.deltaY * 0.001))); applyOrbit(); }, { passive: true });
+
+function resize() { const W = innerWidth, H = innerHeight; renderer.setSize(W, H, false); camera.aspect = W / H; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+const stats = document.getElementById('stats');
+let last = performance.now(), frames = 0, acc = 0, fps = 0;
+renderer.setAnimationLoop((now) => {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  building.update(dt, {});
+  renderer.render(scene, camera);
+  frames++; acc += dt; if (acc > 0.5) { fps = Math.round(frames / acc); frames = 0; acc = 0; }
+  const calls = renderer.info.render.calls, tris = renderer.info.render.triangles;
+  stats.innerHTML = `${fps} i/s · appels <b data-ok="${calls <= 40 ? 1 : 0}">${calls}</b> (budget du module ≤ 40) · triangles <b data-ok="${tris <= 300000 ? 1 : 0}">${Math.round(tris / 1000)} k</b> · ${merge ? 'pièces regroupées' : 'pièces séparées'} · construit en ${loadMs} ms`;
+});
+window.ribelModule = { building, setView, stats: () => ({ calls: renderer.info.render.calls, tris: renderer.info.render.triangles, loadMs, merged: building.stats }) };
+</script>
+</body>
+</html>

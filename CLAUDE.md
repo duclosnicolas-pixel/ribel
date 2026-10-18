@@ -26,8 +26,9 @@
 6. Pour une migration : conserver les anciennes URLs, ne jamais copier un second renderer ou une seconde boucle de rendu dans la carte principale.
 
 ## Historique à respecter
-- Écuries : `ecuries-v53.html` est la référence de travail ; V54 rejetée ; modèles de lampes actuels rejetés pour une refonte ultérieure. Ne pas confondre `ribel-ecuries-nord-preview.html` (volumes provisoires) avec le modèle V53 intégré.
-- Écuries au nord du village, en plein sur l'axe de la rue nord : porte d'entrée du village (on dépose sa monture, puis on entre). Ancrage x 0, z −70, portail au sud face à la rue.
+- Écuries : `ecuries-v53.html` est la référence de travail ; V54 rejetée ; modèles de lampes actuels rejetés pour une refonte ultérieure. Depuis le 2026-10-18, `ribel-ecuries-nord-preview.html` montre le vrai modèle V53 dans le village (plus de volumes provisoires) ; `ribel-ecuries-nord-v2.html` est obsolète (implantation hors axe).
+- Écuries au nord du village, en plein sur l'axe de la rue nord : porte d'entrée du village (on dépose sa monture, puis on entre). Ancrage x 0, z −72, portail au sud face à la rue (z −39,7).
+- Module des écuries : `zones/05-village/01-ecuries/index.js`, géométrie générée depuis `ecuries-v53.html` par `tools/extract-ecuries-v53.mjs` — modéliser dans la page de référence, jamais dans `v53-geometry.js`. Voir le README du module.
 - **Pas d'église au nord** : supprimée strictement par le MOA le 2026-10-18 ; ne pas la réintroduire.
 - RIBEL : Touraine / Loire, XVe siècle, fabrication artisanale sans précision industrielle ; véritable 3D Three.js/WebXR, pas d'images de substitution.
 - Téléphone cible : Samsung Galaxy Z Fold 6.
