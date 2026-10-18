@@ -1,91 +1,55 @@
 {
-  "projet": "Ridel",
+  "projet": "Ribel",
   "registre": "zones",
-  "version": "2026-10-12 · décisions MOA du 11 octobre",
+  "version": "2026-10-18 · architecture modulaire du dépôt prise en compte",
   "unite": "mètres",
+  "repere": { "x": "est", "y": "haut", "z": "sud (nord = z négatif)" },
   "base_cartographique": {
     "site": "château de l'Islette, 9 route de Langeais, Azay-le-Rideau",
     "calage_approx": { "lat": 47.268, "lon": 0.435 },
     "statut": "retenu par la MOA (A1)",
-    "ancrage_historique": "vers 1500 (A2)",
+    "ancrage_historique": "vers 1500 (A2) ; fourchette du dépôt : Touraine / Loire 1450–1550",
     "elements_reels": ["Indre et ses bras", "château sur une île", "moulin accolé", "entrée du domaine rive droite", "emprise de l'ancienne voie ferrée au sud et à l'est"]
   },
+  "secteurs_depot": {
+    "statut": "dossiers créés dans le dépôt (world/world.json) ; rattachement des zones proposé par la MOE, à valider par la MOA",
+    "secteurs": [
+      { "id": "village", "dossier": "zones/01-village", "zones": ["Z05"], "etat": "production (index.html)" },
+      { "id": "chateau", "dossier": "zones/02-chateau", "zones": ["Z01", "Z02", "Z03"], "etat": "prévu" },
+      { "id": "campagne", "dossier": "zones/03-campagne", "zones": ["Z04", "Z06", "Z07"], "etat": "prévu" },
+      { "id": "foret", "dossier": "zones/04-foret", "zones": ["Z08"], "role": "décor d'horizon traversé par le seul chemin de la maison futuriste (A4, A5)", "etat": "prévu" }
+    ]
+  },
   "zones_visitables": [
-    {
-      "id": "Z01",
-      "nom": "Entrée",
-      "contenu": ["porte du domaine rive droite", "point d'arrivée du joueur"],
-      "groupe_chargement": "entree",
-      "lot": "T3",
-      "statut": "à concevoir"
-    },
-    {
-      "id": "Z02",
-      "nom": "Château intérieur",
-      "niveaux": ["rez-de-chaussée", "1er étage", "2e étage", "cave", "sous-sol"],
-      "groupe_chargement": "un niveau par chargement",
-      "lot": "T3",
-      "statut": "à concevoir"
-    },
-    {
-      "id": "Z03",
-      "nom": "Château extérieur",
-      "contenu": ["château sur l'île", "douves en eau", "tourelles à toits coniques", "jardins", "pont", "moulin (proposition)"],
-      "groupe_chargement": "chateau_exterieur",
-      "lot": "T3",
-      "statut": "à concevoir"
-    },
-    {
-      "id": "Z04",
-      "nom": "Lac",
-      "contenu": ["étang au centre du domaine"],
-      "groupe_chargement": "lac",
-      "lot": "T3",
-      "statut": "à concevoir"
-    },
+    { "id": "Z01", "nom": "Entrée", "secteur_propose": "chateau", "contenu": ["porte du domaine rive droite", "point d'arrivée du joueur"], "lot": "T3", "statut": "à concevoir" },
+    { "id": "Z02", "nom": "Château intérieur", "secteur_propose": "chateau", "niveaux": ["rez-de-chaussée", "1er étage", "2e étage", "cave", "sous-sol"], "chargement": "un niveau par chargement", "lot": "T3", "statut": "à concevoir" },
+    { "id": "Z03", "nom": "Château extérieur", "secteur_propose": "chateau", "contenu": ["château sur l'île", "douves en eau", "tourelles à toits coniques", "jardins", "pont", "moulin (proposition)"], "lot": "T3", "statut": "à concevoir" },
+    { "id": "Z04", "nom": "Lac", "secteur_propose": "campagne", "contenu": ["étang au centre du domaine"], "lot": "T3", "statut": "à concevoir" },
     {
       "id": "Z05",
       "nom": "Village",
-      "contenu": ["place du marché ovale de 80 m × 28 m", "fontaine centrale", "rues et commerces de l'ébauche", "église Saint-Michel", "monastère et cimetière au sud du village"],
-      "gabarit_place": { "ovale_m": [80, 28], "rues": 4, "decision": "A6" },
-      "groupe_chargement": "village",
+      "secteur_propose": "village",
+      "contenu": ["place du marché ovale de 80 m × 28 m", "fontaine centrale", "rues et commerces de l'ébauche", "église Saint-Michel", "écuries au nord/nord-est de l'église (provisoire)", "monastère et cimetière au sud du village"],
+      "batiments_depot": [
+        { "id": "ecuries", "dossier": "zones/01-village/01-ecuries", "reference": "ecuries-v53.html", "placement": { "x": 43, "z": -83, "statut": "provisoire" }, "statut": "prévisualisation, extraction en module à faire" },
+        { "id": "taverne", "dossier": "zones/01-village/02-taverne", "statut": "conception à venir" },
+        { "id": "forge", "dossier": "zones/01-village/03-forge", "statut": "prévu" },
+        { "id": "eglise", "dossier": "zones/01-village/04-eglise", "statut": "existant dans index.html" },
+        { "id": "habitations", "dossier": "zones/01-village/05-habitations", "statut": "existant dans index.html" }
+      ],
       "lot": "T1 pour la place, T3 pour le reste",
-      "statut": "banc d'essai v2 en volumes gris livré"
+      "statut": "en production : index.html, refonte graphique du 13 octobre"
     },
-    {
-      "id": "Z06",
-      "nom": "Résidences des invités",
-      "contenu": ["bande nord-ouest le long de l'Indre"],
-      "groupe_chargement": "residences",
-      "lot": "T3",
-      "statut": "à concevoir"
-    },
-    {
-      "id": "Z07",
-      "nom": "Vergers et serre exotique",
-      "contenu": ["vergers", "immense verrière à fruits exotiques"],
-      "groupe_chargement": "vergers",
-      "lot": "T3",
-      "statut": "à concevoir"
-    },
-    {
-      "id": "Z08",
-      "nom": "Maison futuriste",
-      "alias": "maison moderne de rêve",
-      "contenu": ["au fond de la forêt", "jamais visible depuis le reste du domaine"],
-      "acces": "uniquement par un chemin à travers la forêt",
-      "groupe_chargement": "maison_futuriste",
-      "lot": "T3",
-      "statut": "à concevoir",
-      "decision": "A4"
-    }
+    { "id": "Z06", "nom": "Résidences des invités", "secteur_propose": "campagne", "contenu": ["bande nord-ouest le long de l'Indre"], "lot": "T3", "statut": "à concevoir" },
+    { "id": "Z07", "nom": "Vergers et serre exotique", "secteur_propose": "campagne", "contenu": ["champs", "vergers", "immense verrière à fruits exotiques"], "lot": "T3", "statut": "à concevoir" },
+    { "id": "Z08", "nom": "Maison futuriste", "alias": "maison moderne de rêve", "secteur_propose": "foret", "contenu": ["au fond de la forêt", "jamais visible depuis le reste du domaine"], "acces": "uniquement par un chemin à travers la forêt", "lot": "T3", "statut": "à concevoir", "decision": "A4" }
   ],
   "decors_non_visitables": [
     { "nom": "Forêt", "role": "décor d'horizon, traversé seulement par le chemin de la maison futuriste", "decision": "A5" },
-    { "nom": "Champs", "role": "décor (proposition MOE)" },
     { "nom": "Mur d'enceinte", "role": "limite du monde, sur l'emprise de l'ancienne voie ferrée", "decision": "A7" },
     { "nom": "Monde lointain", "role": "relief allégé, silhouettes des zones et ciel, toujours chargé", "lot": "T4" }
   ],
-  "transitions": "portes, ponts et passages : fondu au noir et bascule de zone ; voyage rapide entre zones éloignées (carte, barque sur l'Indre, charrette)",
-  "points_ouverts": ["butte de liaison : à situer ou abandonner", "moulin : rattachement au château extérieur à confirmer", "maison futuriste : forêt de l'ouest à confirmer"]
+  "budgets_quest2_par_oeil": { "images_par_seconde": 72, "appels_de_rendu_max": 100, "triangles_max": 300000 },
+  "transitions": "portes, ponts et passages : fondu au noir et bascule de zone ; voyage rapide entre zones éloignées",
+  "points_ouverts": ["rattachement des 8 zones aux 4 secteurs : à valider", "butte de liaison : à situer", "moulin : rattachement au château extérieur", "emplacement des écuries : à valider sur le croquis"]
 }

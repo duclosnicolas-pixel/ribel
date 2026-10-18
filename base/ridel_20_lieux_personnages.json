@@ -1,45 +1,39 @@
 {
-  "projet": "Ridel",
+  "projet": "Ribel",
   "registre": "lieux et personnages",
-  "version": "2026-10-12 · décisions MOA du 11 octobre",
+  "version": "2026-10-18 · architecture modulaire du dépôt prise en compte",
   "lieux_village": {
-    "statut": "relevés sur l'image d'ébauche de la MOA, non contractuels",
+    "statut": "relevés sur l'ébauche de la MOA et dans le dépôt ; implantations non contractuelles",
     "lieux": [
-      { "nom": "Place du marché", "type": "place ovale de 80 m × 28 m avec fontaine centrale" },
-      { "nom": "Forge", "type": "artisan" },
+      { "nom": "Place du marché", "type": "place ovale de 80 m × 28 m avec fontaine centrale", "etat": "production" },
+      { "nom": "Écuries", "type": "ensemble en U : 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail", "module": "zones/01-village/01-ecuries", "reference": "ecuries-v53.html", "etat": "prévisualisation ; lampes à redessiner ; emplacement provisoire au nord/nord-est de l'église" },
+      { "nom": "Taverne", "type": "taverne-auberge (L'Épée Royale sur l'ébauche, à confirmer)", "module": "zones/01-village/02-taverne", "etat": "conception à venir" },
+      { "nom": "Forge", "type": "artisan", "module": "zones/01-village/03-forge", "etat": "prévu" },
       { "nom": "Le Pain Doré", "type": "boulangerie" },
       { "nom": "La Huche de Pain", "type": "boulangerie" },
       { "nom": "Les Remèdes du Temps", "type": "apothicaire" },
-      { "nom": "L'Épée Royale", "type": "taverne-auberge" },
       { "nom": "Maison du marchand", "type": "demeure" },
       { "nom": "Maison des marchands (guilde)", "type": "guilde" },
-      { "nom": "Église Saint-Michel", "type": "église paroissiale" },
+      { "nom": "Église Saint-Michel", "type": "église paroissiale", "module": "zones/01-village/04-eglise", "etat": "existant dans index.html" },
+      { "nom": "Habitations", "type": "maisons à pans de bois en encorbellement", "module": "zones/01-village/05-habitations", "etat": "existant dans index.html" },
       { "nom": "Monastère et cloître", "type": "monastère, au sud du village" },
       { "nom": "Cimetière", "type": "cimetière clos, au sud du village" }
     ]
   },
-  "personnages_principaux": [
-    { "nom": "Angie", "role": "personnage principal", "lot": "T7", "statut": "en attente", "fiche": "à rédiger par la MOA" },
-    { "nom": "Kara", "role": "personnage principal", "lot": "T7", "statut": "en attente", "fiche": "à rédiger par la MOA" }
-  ],
-  "pnj": {
-    "statut": "supprimés pour l'instant (décision MOA du 11 octobre 2026)",
-    "cible_initiale": 40,
-    "consigne_moa_initiale": "une quarantaine de bots et personnages, chacun avec sa personnalité",
-    "lot": "T5",
-    "schema_fiche_propose": {
-      "id": "PNJ-01",
-      "nom": "",
-      "metier": "",
-      "zone_de_vie": "Zxx",
-      "zone_de_travail": "Zxx",
-      "personnalite": [],
-      "routine": { "matin": "", "midi": "", "apres_midi": "", "soiree": "", "nuit": "" },
-      "relations": [],
-      "repliques_types": [],
-      "interactif": false
-    },
-    "fiches": []
+  "personnages": {
+    "statut": "PNJ supprimés par la MOA le 11 octobre ; identifiants réservés depuis dans le dépôt — réintroduction à confirmer par la MOA",
+    "regle": "personnages indépendants des bâtiments : identité et état persistants, domicile référencé par ID (docs/CONTRACTS.md)",
+    "reserves": [
+      { "id": "AA", "role": "palefrenier", "domicile": "village/ecuries", "dossier": "characters/AA-palefrenier", "statut": "prévu" },
+      { "id": "AB", "role": "tavernier", "domicile": "village/taverne", "dossier": "characters/AB-tavernier", "statut": "prévu" },
+      { "id": "AC", "role": "forgeron", "domicile": "village/forge", "dossier": "characters/AC-forgeron", "statut": "prévu" }
+    ],
+    "principaux": [
+      { "nom": "Angie", "lot": "T7", "statut": "en attente", "fiche": "à rédiger par la MOA" },
+      { "nom": "Kara", "lot": "T7", "statut": "en attente", "fiche": "à rédiger par la MOA" }
+    ],
+    "cible_lot_T5": "une quarantaine de bots et personnages, chacun avec sa personnalité",
+    "contenu_fiche": ["id", "role", "domicile", "modele", "personnalite", "besoins", "relations", "routine par moment de la journée (T8)"]
   },
   "temps": {
     "moments": ["matin", "midi", "après-midi", "soirée", "nuit"],

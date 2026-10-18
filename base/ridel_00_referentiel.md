@@ -1,70 +1,68 @@
-# Ridel — référentiel projet
+# Ribel — référentiel projet
 
-État au 12 octobre 2026 : arbitrages du Lot 0 rendus le 11 octobre, banc d'essai v2 publié, dépôt GitHub relié. Prochaine étape : recette du banc sur Fold 6 et Quest 2, puis lancement du Lot 1.
+État au 18 octobre 2026. Le dépôt GitHub fait foi pour le code et l'état partagé (`docs/PROJECT_STATE.md`) ; ce référentiel garde les décisions de la MOA, le registre des zones et les points à arbitrer.
 
-## Gouvernance
-- MOA : Nicolas. MOE et AMOA : Claude.
-- Mode agile : un lot à la fois, priorités P0 / P1 / P2, recette sur Galaxy Z Fold 6 et Meta Quest 2 à chaque lot.
+## Gouvernance (mise à jour du 18 octobre)
+- MOA : Nicolas, seul habilité à valider implantations, recettes et mises en production.
+- MOE et responsable technique (techlead) : Claude — architecture, moteur partagé (`core/`), contrats de modules, intégration au monde, budgets de rendu, revue technique des livraisons.
+- ChatGPT : assistance (AMOA/AMOE selon les documents), UX et modélisation 3D Three.js — bâtiments, décors, prévisualisations.
+- À harmoniser : la description du projet claude.ai nomme ChatGPT « AMOA », `CLAUDE.md` le nomme « AMOE » et attribue l'AMOA à Claude.
+
+## Sources de vérité et méthode (fixées dans le dépôt)
+- Dépôt : https://github.com/duclosnicolas-pixel/ribel — public, publié par GitHub Pages : https://duclosnicolas-pixel.github.io/ribel/
+- À lire en début de chantier : `AGENTS.md`, `CLAUDE.md`, `ARCHITECTURE.md`, `docs/PROJECT_STATE.md`, `docs/WORKFLOW.md`, `docs/CONTRACTS.md`, puis le manifeste du module.
+- Un chantier = une zone, un bâtiment, un personnage ou un système, dans son dossier, avec manifeste et prévisualisation isolée.
+- `index.html` (village en production) n'est modifié qu'avec l'accord de la MOA ; aucune prévisualisation n'y est fusionnée sans recette.
+- Un seul moteur : un renderer, une boucle de rendu, une carte de coordonnées (mètres ; x est, y haut, z sud).
+- Un contrôle technique n'est jamais présenté comme une recette sur appareil.
 - Dossier de lancement (Claude Docs) : https://claude.ai/code/artifact/bd6028bb-7f17-4f38-bf00-880b98a53949
-- Banc d'essai T0, recette téléphone (artefact) : https://claude.ai/artifact/AacTS47fW1ZReaWQfswvVP
-- Dépôt GitHub : https://github.com/duclosnicolas-pixel/ribel — version casque publiée par GitHub Pages à l'adresse https://duclosnicolas-pixel.github.io/ribel/
 
-## Demande de la MOA
-- Application VR pour Meta Quest 2 : basculer une cartographie réelle et exacte en simulation dans laquelle on se déplace.
-- Époque figée au Moyen Âge. Géographie reprise et améliorée selon l'imaginaire de la MOA ; la carte initiale n'est qu'une base de travail.
-- Déplacement et typologie de chargement inspirés de Resident Evil 4 sur Meta Quest (inspiration, pas copie).
-- Recette possible depuis le Galaxy Z Fold 6 : déplacement par l'interface du téléphone.
-- Aucune restriction de taille ni de poids.
-- L'image du village fournie n'est qu'une ébauche.
-
-## Décisions MOA du 11 octobre 2026
-- A1 Site : château de l'Islette, 9 route de Langeais, Azay-le-Rideau (≈ 47,268 N ; 0,435 E), base de travail retenue.
-- A2 Ancrage historique : vers 1500 (case cochée dans le dossier) — douves en eau, tourelles à toits coniques, village à pans de bois.
-- A3 Monastère et cimetière : au sud du village, rattachés à la zone Village.
-- A4 Maison futuriste (maison moderne de rêve) : jamais visible ; au fond de la forêt ; accessible uniquement par un chemin.
-- A5 Forêt : décor d'horizon, non visitable (seul le chemin vers la maison futuriste la traverse).
-- A6 Place du marché : ovale, étirée, superficie doublée en longueur, soit 80 m × 28 m.
+## Décisions MOA du 11 octobre 2026 (toujours en vigueur sauf mention)
+- A1 Site : château de l'Islette, Azay-le-Rideau (≈ 47,268 N ; 0,435 E).
+- A2 Époque : vers 1500 ; le dépôt retient Touraine / Loire 1450–1550, artisanat non industriel.
+- A3 Monastère et cimetière au sud du village.
+- A4 Maison futuriste jamais visible, au fond de la forêt, accessible par un seul chemin.
+- A5 Forêt : décor d'horizon, non visitable hors chemin.
+- A6 Place du marché ovale 80 m × 28 m.
 - A7 Limite du monde : mur d'enceinte sur l'emprise de l'ancienne voie ferrée.
-- A8 Hébergement : compte GitHub créé, dépôt « ribel » relié à Claude.
-- Zones visitables : Entrée, château intérieur, château extérieur, lac, village, résidences des invités, vergers et serre exotique, maison futuriste.
-- PNJ : supprimés pour l'instant ; T5 à T7 restent au plan, sans échéance.
+- A8 Hébergement GitHub, dépôt « ribel ».
+- PNJ supprimés le 11 octobre — voir écart n° 2 ci-dessous.
 
-## Registre des zones (détail dans ridel_10_zones.json)
-- Visitables : Z01 Entrée · Z02 Château intérieur (rez-de-chaussée, 1er, 2e, cave, sous-sol) · Z03 Château extérieur · Z04 Lac · Z05 Village (place du marché 80 × 28 m, église Saint-Michel, monastère et cimetière au sud) · Z06 Résidences des invités · Z07 Vergers et serre exotique · Z08 Maison futuriste.
-- Décors non visitables : forêt, champs, monde lointain, mur d'enceinte.
+## État au 18 octobre
+- Village (production, `index.html`) : refonte graphique du 13 octobre (teintes, cheminées, portes, fenêtres instanciées). Sauvegarde : `index-avant-ecuries-nord.html`.
+- Écuries : référence de travail `ecuries-v53.html` (U de 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail ; jour/nuit, lampes, foyer, portes). V54 rejetée. Lampes à redessiner. Implantation provisoire au nord/nord-est de l'église (x 43, z −83), maquette `ribel-ecuries-nord-preview.html`.
+- Architecture modulaire : dossiers, manifestes et contrats v0.1 posés ; moteur non encore extrait de `index.html`, zones non chargées dynamiquement.
+- Taverne, forge : dossiers prévus, non modélisés.
 
-## Choix techniques (proposés par la MOE, hébergement GitHub engagé)
-- Application web WebXR (Three.js) : un seul code pour le Quest 2 (mode VR) et le Fold 6 (mode tactile).
-- Deux couches : monde lointain toujours chargé (relief allégé, silhouettes, ciel) et zone active chargée en détail ; transitions par portes et passages avec fondu au noir ; voyage rapide entre zones éloignées.
-- Déplacement VR : stick vers l'avant = arc et marqueur, orientation choisie au stick, relâcher = téléportation ; stick latéral = rotation de 45° ; stick arrière = demi-tour.
-- Déplacement téléphone : toucher le sol = téléportation, glisser = regarder, boutons de rotation et de demi-tour.
-- Relief : MNT LiDAR HD de l'IGN (dalles de 1 km, pas de 50 cm, licence ouverte) ; RGE ALTI en secours ; orthophoto comme calque.
-- Rendu : éclairage dynamique simple et ombres de contact précalculées (compatible T8 et T9), textures compressées, instanciation, niveaux de détail, rendu fovéal ; sols découpés en cases (un plan d'un seul tenant fausse la profondeur près de l'œil).
-- Budgets de départ par œil, à confirmer au banc d'essai : 72 i/s, au plus 100 appels de rendu, au plus 300 000 triangles.
-- Données projet en JSON, modèles 3D en glTF.
+## Contrôle technique MOE du 18 octobre (navigateur sans écran, rendu logiciel — pas une recette)
+| Page | Erreurs JS | Appels de rendu / image | Triangles / image |
+|---|---|---|---|
+| `index.html` (village) | aucune | 23 | 26 900 |
+| `ribel-ecuries-nord-preview.html` | aucune | 24 | 26 900 |
+| `ecuries-v53.html` | aucune | **2 167** | 179 000 |
 
-## Hébergement et pérennité
-- Niveau 1 : artefact Claude, pour la recette téléphone ; le cadre des artefacts bloque la VR immersive.
-- Niveau 2 : GitHub Pages (dépôt « ribel »), pour la VR au casque.
-- Niveau 3 : PC et casque (Air Link ou Steam Link), préréglage « PC VR ».
-- Niveau 4 : application native (APK) si le plafond du navigateur est atteint.
-- Correctifs de sécurité du Quest 2 jusqu'en décembre 2027 ; l'appli web reste compatible Quest 3 et 3S.
+- Le village tient largement les budgets Quest 2 (≤ 100 appels, ≤ 300 000 triangles par œil).
+- Les écuries V53 dépassent le budget d'appels d'un facteur 20 : environ 50 maillages isolés et des centaines de pièces répétées, matériaux PBR, ombres douces, 10 lumières ponctuelles. Acceptable en prévisualisation téléphone, intenable en VR une fois posé dans le village.
+- Condition d'intégration proposée : fusion des pièces statiques par matériau, instanciation des répétitions (boxes, piliers, lanternes), matériaux Lambert, une seule ombre directionnelle, lampes en émissif avec deux lumières au plus. Cible : ≤ 40 appels pour l'ensemble des écuries.
 
-## Séquencement
-- T0 socle et banc d'essai → T1 place du village et téléportation minimale → T2 déplacement façon RE4 et transitions de zones → T3a cadre de chargement et maquette blanche du domaine → T4 horizon → T3b habillage zone par zone → T5 à T7 personnages (en attente) → T8 moments de la journée → T9 saisons.
-- Ordre d'habillage proposé : village, château extérieur, château intérieur, lac, entrée, résidences des invités, vergers et serre exotique, maison futuriste.
+## Écarts à arbitrer par la MOA
+1. Découpage des zones : le dépôt a 4 secteurs (village, château, campagne, forêt), la décision du 11 octobre 8 zones visitables. Proposition MOE : garder les 4 secteurs comme dossiers et les 8 zones comme unités de chargement — village ⊃ Z05 ; château ⊃ Z01, Z02, Z03 ; campagne ⊃ Z04, Z06, Z07 ; forêt = décor d'horizon ⊃ chemin et Z08.
+2. Personnages : PNJ supprimés le 11 octobre, mais palefrenier (AA), tavernier (AB) et forgeron (AC) réservés dans `characters/`. Réintroduction à confirmer ; Angie et Kara (T7) restent en attente.
+3. Emplacement des écuries : à valider sur le croquis.
+4. Deux référentiels dans le dépôt (`base/` et `docs/PROJECT_STATE.md`) : proposition de fondre `base/` dans `docs/` (décisions dans `docs/DECISIONS.md`, zones dans `world/world.json`).
 
-## Points ouverts (non bloquants)
-- Butte de liaison : à situer, ou à abandonner.
-- Moulin : proposé comme partie du château extérieur.
-- Champs : proposés comme décor non visitable.
-- Maison futuriste : placée au fond de la forêt de l'ouest, à confirmer.
+## Choix techniques
+- WebXR + Three.js r170, un seul code pour Quest 2 (VR) et Galaxy Z Fold 6 (tactile).
+- Contrats v0.1 : `createBuilding(context, config)`, `createZone(context, zoneConfig)`, `createCharacter(context, definition)` ; bus d'événements ; personnages indépendants des bâtiments.
+- Deux couches : monde lointain toujours chargé, zone active en détail ; transitions par fondu ; voyage rapide.
+- Téléportation façon RE4 (arc, orientation, rotation 45°, demi-tour) ; téléphone : toucher pour se téléporter, glisser pour regarder.
+- Budgets par œil : 72 i/s, ≤ 100 appels, ≤ 300 000 triangles ; instanciation, fusion, rendu fovéal, éclairage simple compatible T8/T9.
+- Relief : LiDAR HD IGN ; RGE ALTI en secours.
 
-## Lot 1 (après recette du banc d'essai)
-- P0 : place du marché ovale de 80 m × 28 m, pavée ; fontaine centrale ; ceinture de façades à pans de bois (commerces de l'ébauche) ; débouchés de rues fermés par un décor ; téléportation minimale et commandes téléphone ; lumière de jour fixe ; au moins 72 i/s sur Quest 2.
-- P1 : repères lointains (clocher Saint-Michel, château) ; étals de marché ; ambiance sonore.
+## Séquencement (README de la MOA)
+T1 place du village et fontaine → T2 téléportation façon RE4 → T3 séparation des zones → T4 horizon → T5 bots et personnages → T6 interactions → T7 Angie, Kara → T8 horaires → T9 saisons.
 
-## Banc d'essai T0, version 2 (livrée le 12 octobre)
-- Place ovale de 80 m × 28 m en volumes gris, fontaine animée, 37 maisons à pans de bois en encorbellement, église Saint-Michel au bout de la rue nord, cimetière clos et monastère au bout de la rue sud, château aux tourelles coniques à l'horizon.
-- Aucun personnage. Mesures en direct (i/s, appels, triangles), relevé copiable, diagnostic navigateur et VR.
-- Charge du décor en rendu logiciel : environ 25 appels et 24 000 triangles par vue, sous les budgets.
+## Points ouverts
+- Butte de liaison (avec monastère et cimetière dans la liste T3) : à situer.
+- Moulin : rattachement au château extérieur.
+- Recette Fold 6 et Quest 2 du village : relevé « Diagnostic » attendu.
