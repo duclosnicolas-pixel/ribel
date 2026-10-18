@@ -1,0 +1,10 @@
+{
+  "id": "AC",
+  "role": "forgeron",
+  "home": "village/forge",
+  "model": null,
+  "personality": null,
+  "needs": null,
+  "relationships": [],
+  "status": "planned"
+}
