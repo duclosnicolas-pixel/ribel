@@ -8,3 +8,10 @@
 - Palefrenier : `characters/AA-palefrenier/`.
 
 Les nouveaux assistants n'ont pas forcément accès aux anciennes conversations ; ils doivent relire GitHub à chaque reprise.
+
+## Prompts spécialisés à copier
+
+- **Écuries** : [`docs/prompts/ECURIES.md`](prompts/ECURIES.md) — V53, extraction modulaire, implantation nord, recette mobile.
+- **Taverne** : [`docs/prompts/TAVERNE.md`](prompts/TAVERNE.md) — programme architectural, nouvelle modélisation et intégration différée.
+
+Ces prompts sont les références de reprise pour les conversations dédiées ; relire également l'état courant du dépôt.
