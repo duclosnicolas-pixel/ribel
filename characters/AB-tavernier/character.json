@@ -1,0 +1,10 @@
+{
+  "id": "AB",
+  "role": "tavernier",
+  "home": "village/taverne",
+  "model": null,
+  "personality": null,
+  "needs": null,
+  "relationships": [],
+  "status": "planned"
+}
