@@ -108,8 +108,8 @@ body.in-vr .hud { display: none; }
 
 <header class="hud hud-top">
   <div class="brand panel">
-    <p class="eyebrow">Ridel · Lot 0</p>
-    <h1>Banc d'essai</h1>
+    <p class="eyebrow">RIBEL · Zone Z05 · Recette 3D/VR</p>
+    <h1>Village · Maquette validée</h1>
     <p class="mode" id="mode">Mode tactile</p>
   </div>
   <section class="metrics panel" aria-label="Mesures en direct">
@@ -138,7 +138,7 @@ body.in-vr .hud { display: none; }
         <tbody id="readings"></tbody>
       </table>
     </div>
-    <p class="note">Mesures du décor seul : la place de 80 m, ses façades, la fontaine, le monastère et son cimetière au sud. Comptez quelques secondes avant de lire la moyenne.</p>
+    <p class="note">Mesures de prévisualisation : deux couronnes de maisons, rues concentriques, commerces, fontaine et module V53 des écuries. La paroisse, le verger, la forêt et le château restent des chantiers distincts.</p>
     <pre id="releve"></pre>
     <div class="copy-row"><button id="copy" type="button">Copier le relevé</button><span class="status" id="copy-status" role="status"></span></div>
   </section>
@@ -1085,7 +1085,7 @@ function main(THREE) {
     $('releve').textContent = releveText();
   }
   function releveText() {
-    const lines = ["Ridel · banc d'essai T0 · place ovale 80 m × 28 m", `Navigateur : ${browserName} · ${innerWidth} × ${innerHeight} px`, `VR : ${xrText}`];
+    const lines = ["RIBEL · prévisualisation Village Z05 · maquette approuvée", `Navigateur : ${browserName} · ${innerWidth} × ${innerHeight} px`, `VR : ${xrText}`];
     let any = false;
     for (const mode of ['ecran', 'vr']) {
       const t = rowText(mode);
@@ -1255,7 +1255,7 @@ function main(THREE) {
   // Outils de repérage : panoramique tactile, zoom et capture pour annotations.
   const aerialPanel=document.createElement('div');
   aerialPanel.id='aerial-panel';
-  aerialPanel.style.cssText='position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:60;background:rgba(20,24,29,.92);border:1px solid #a99c82;border-radius:12px;padding:9px;color:#fff;font:13px system-ui;max-width:calc(100vw - 20px)';
+  aerialPanel.style.cssText='position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 188px);z-index:60;background:rgba(20,24,29,.92);border:1px solid #a99c82;border-radius:12px;padding:9px;color:#fff;font:13px system-ui;max-width:calc(100vw - 20px)';
   aerialPanel.innerHTML='<div style="font-weight:700;margin-bottom:7px">Village 3D/VR · Plan validé</div><div style="display:flex;gap:5px;flex-wrap:wrap"><button id="aerial-toggle">Vue au sol</button><button id="aerial-plus">Zoom +</button><button id="aerial-minus">Zoom −</button><button id="aerial-center">Recentrer</button><button id="aerial-shot">Capture PNG</button></div><div style="font-size:11px;opacity:.85;margin-top:6px">Glisser pour déplacer · zoomer · vue au sol / VR · capture PNG</div>';
   document.body.appendChild(aerialPanel);
   aerialPanel.querySelectorAll('button').forEach(b=>b.style.cssText='padding:8px 9px;background:#344b48;color:#fff;border:1px solid #9fada2;border-radius:7px;touch-action:manipulation');
