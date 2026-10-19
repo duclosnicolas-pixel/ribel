@@ -745,7 +745,7 @@ function main(THREE) {
     const inner=(x*x)/((INNER_A+4)**2)+(dz*dz)/((INNER_B+4.2)**2)>=1;
     const ring=out&&inner;
     const eastWest=Math.abs(dz)<STREET_HALF-.3&&Math.abs(x)<OUTER_A+24;
-    const northSouth=Math.abs(x)<STREET_HALF-.3&&z>=VILLAGE_Z-OUTER_B-32&&z<=VILLAGE_Z+OUTER_B+9;
+    const northSouth=Math.abs(x)<STREET_HALF-.3&&z>=-36.2&&z<=VILLAGE_Z+OUTER_B+33;
     // Les maillages des maisons forment aussi des obstacles de déplacement,
     // y compris aux croisements des bandes de pavage.
     const houseBlocked=houses.some(h=>{
