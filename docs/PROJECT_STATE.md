@@ -28,6 +28,14 @@ Mise à jour : 2026-10-18 (soir). Ce document doit être actualisé après chaqu
 
 Bâtiments du village : `zones/05-village/01-ecuries`, `02-taverne`, `03-forge`, `05-habitations` (l'identifiant 04 de l'ancienne église n'est pas réattribué).
 
+## Maquette village 3D/VR — recette proposée 2026-10-19
+- Le MOA a validé la **maquette aérienne de principe** : place centrale ovale sur axe N/S, deux anneaux de maisons et voies, commerces Boulanger/Taverne/Auberge/Armurier/Forgeron, sorties cardinales vers zones distinctes.
+- Le chemin du château **contourne les écuries par l'est, en courbe, à l'extérieur de l'enceinte** ; il ne traverse ni boxes ni cour.
+- Première traduction **réelle Three.js/WebXR** par ChatGPT AMOE : `ribel-village-maquette-v1.html`, https://duclosnicolas-pixel.github.io/ribel/ribel-village-maquette-v1.html. Maillages de bâtiments, rues annulaires, déplacement/VR et caméra aérienne. Réutilise les **vraies écuries V53** ; `index.html` intact.
+- Cette géométrie et ses dimensions restent **en attente de recette MOA** sur Galaxy Z Fold 6 ; ne pas prétendre qu'elles sont validées par la seule approbation de l'image.
+- Description détaillée, périmètre de zone, limites et étapes : `docs/MAQUETTE_VILLAGE_3D.md`.
+- Claude/MOE effectue toute intégration de la version validée, après accord explicite du MOA. Préserver les zones forêt, verger/greniers/serres, paroisse/cloître/cimetières, château distinctes.
+
 ## Village
 - URL de production : https://duclosnicolas-pixel.github.io/ribel/
 - `index.html` : ne pas modifier sans accord du MOA. Dernière modification : suppression de l'église du nord (décision MOA du 2026-10-18) ; la rue nord débouche désormais sur l'emplacement des écuries.
