@@ -1,6 +1,6 @@
 # Ribel — référentiel projet
 
-État au 18 octobre 2026 (soir). Le dépôt GitHub fait foi pour le code et l'état partagé (`docs/PROJECT_STATE.md`) ; ce référentiel garde les décisions de la MOA et les registres.
+État au 23 octobre 2026. Le dépôt GitHub fait foi pour le code et l'état partagé (`docs/PROJECT_STATE.md`) ; ce référentiel garde les décisions de la MOA et les registres.
 
 ## Gouvernance
 - MOA : Nicolas, seul habilité à valider implantations, recettes et mises en production.
@@ -48,6 +48,11 @@
 - Écuries : référence de travail `ecuries-v53.html` (U de 6 boxes de nuit, 4 boxes de jour, remise, logement du palefrenier, cour, enceinte, portail ; jour/nuit, lampes, foyer, portes). V54 rejetée. Lampes à redessiner. Ancrage x 0, z −72, rotation 0 ; portail au sud face à la rue nord (z −39,7). Module extrait le 18 octobre (`zones/05-village/01-ecuries/index.js`, géométrie V53 à l'identique) : le vrai modèle est visible dans le village sur `ribel-ecuries-nord-preview.html` (32 à 36 appels de rendu pour les écuries, 53 à 76 pour l'ensemble). L'ancienne maquette en volumes, jugée hors sujet et flottante par la MOA, est retirée.
 - Architecture modulaire : dossiers des 8 zones, manifestes et contrats v0.1 posés ; moteur non encore extrait de `index.html`, zones non chargées dynamiquement.
 - Taverne, forge : dossiers prévus, non modélisés.
+
+## Auberge du Foyer d'Or (23 octobre)
+- Demande MOA : modèle Meshy de l'auberge/taverne à la place des bâtiments sous le rond rose de la vue aérienne de `ribel-village-maquette-v1.html` ; portes extérieures non ouvrables ; circulation entre les bancs, sous les arcades et sous l'encorbellement.
+- Fait : module `zones/05-village/02-taverne/` ; modèle 137 Mo / 4,34 M triangles allégé à 2,3 Mo / 78 000 triangles ; échelle 9 m par unité (tables 0,85 m, arcades 2,3 m, porte 1,75 m) ; trois maisons de la couronne intérieure remplacées ; rue circulaire ≥ 3,5 m ; perron et terrasse avancent d'environ 11 m² sur la place.
+- Recette MOA attendue.
 
 ## Contrôle technique MOE du 18 octobre (navigateur sans écran, rendu logiciel — pas une recette)
 | Page | Erreurs JS | Appels de rendu / image | Triangles / image |

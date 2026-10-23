@@ -1,6 +1,6 @@
 # RIBEL — État de référence partagé
 
-Mise à jour : 2026-10-18 (soir). Ce document doit être actualisé après chaque recette ou décision du MOA.
+Mise à jour : 2026-10-23. Ce document doit être actualisé après chaque recette ou décision du MOA.
 
 ## Gouvernance et intention
 - Nicolas : MOA, seul habilité à valider les implantations et mises en production.
@@ -53,8 +53,15 @@ Bâtiments du village : `zones/05-village/01-ecuries`, `02-taverne`, `03-forge`,
 - La modélisation continue dans la page autonome ; une nouvelle version validée est réintégrée en relançant l'extraction (règles dans le README du module).
 - Point ouvert : arrivée du chemin depuis l'Entrée (Z01), par le nord ou par un côté.
 
-## Taverne
-- Chantier distinct prévu dans `zones/05-village/02-taverne/`, pas encore modélisé.
+## Taverne — Auberge du Foyer d'Or (2026-10-23)
+- Demande MOA : implanter le modèle Meshy de l'auberge/taverne à la place des bâtiments sous le rond rose (couronne intérieure, nord-est de la place) de `ribel-village-maquette-v1.html` ; portes extérieures **non ouvrables** pour l'instant ; circuler entre les bancs, sous les arcades et sous l'encorbellement.
+- Réalisé par la MOE : module `zones/05-village/02-taverne/` (`index.js`, `auberge.glb`, `nav.json`, manifeste, README), outils `tools/taverne/`.
+- Modèle source 137 Mo / 4,34 M triangles (hors dépôt, limite GitHub 100 Mo) → `auberge.glb` 2,3 Mo / 78 000 triangles / 1 appel de rendu.
+- Échelle 9 m par unité Meshy (tables 0,85 m, bancs 0,5 m, arcades 2,3 m, porte 1,75 m) ; emprise 15,3 × 15,3 m ; ancrage x 19,48, z −0,19, rotation −0,72, façade vers la fontaine.
+- Trois maisons de la couronne intérieure retirées ; rue circulaire ≥ 3,5 m ; couronne extérieure intacte ; perron et terrasse avancent d'environ 11 m² sur le bord de la place. Enseignes « Taverne » et « Auberge » retirées des maisons génériques.
+- Circulation calculée sur la géométrie complète : on se tient entre les bancs, sous les arcades, sous l'encorbellement, sur le perron (à la hauteur des marches) ; intérieur inaccessible ; toucher une porte ou la façade affiche « fermée pour l'instant ».
+- Prévisualisations : https://duclosnicolas-pixel.github.io/ribel/ribel-village-maquette-v1.html (bouton « Devant l'auberge ») et https://duclosnicolas-pixel.github.io/ribel/previews/taverne-module.html.
+- **Recette MOA attendue** (Fold 6, puis casque). Points ouverts : intérieur et portes (lot ultérieur) ; terrasse très meublée dans le modèle (pas d'allée continue) ; proportions Meshy (porte un peu basse).
 
 ## Personnages
 - Identifiants réservés : AA palefrenier, AB tavernier, AC forgeron. Priorité basse (T5 à T7).
@@ -74,6 +81,8 @@ Navigateur sans écran, rendu logiciel : contrôle de chargement et de charge, *
 | `index.html` (sans église) | aucune | 23 à 30 selon la vue | 27 000 |
 | `ribel-ecuries-nord-preview.html` (village + vraies écuries) | aucune | 53 à 76 selon la vue | 134 000 à 139 000 |
 | `previews/ecuries-module.html` (module seul) | aucune | 32 à 36 | 110 000 |
+| `ribel-village-maquette-v1.html` (village, écuries, auberge) — 23/10 | aucune | 20 à 86 selon la vue | 108 000 à 223 000 |
+| `previews/taverne-module.html` (auberge seule) — 23/10 | aucune | 3 | 79 000 |
 | `ecuries-v53.html` | aucune | 2 167 | 179 000 |
 
 - Budgets Quest 2 par œil : 72 i/s, ≤ 100 appels, ≤ 300 000 triangles. Le village les tient.
@@ -87,5 +96,5 @@ Navigateur sans écran, rendu logiciel : contrôle de chargement et de charge, *
 1. Recette MOA sur Fold 6 de la prévisualisation du village avec les vraies écuries.
 2. Refonte des lampes dans la page autonome (AMOE), puis nouvelle extraction (MOE).
 3. Arrivée du chemin depuis l'Entrée jusqu'aux écuries.
-4. Poursuivre la taverne dans son dossier ; personnages plus tard.
+4. Recette de l'auberge dans la maquette du village ; intérieur plus tard ; personnages plus tard.
 5. Fusionner dans le village principal seulement sur accord MOA.

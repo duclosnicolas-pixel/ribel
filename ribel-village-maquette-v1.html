@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -452,12 +453,37 @@ function main(THREE) {
   }
   buildRing(INNER_A,INNER_B,8.2,7.4,1);
   buildRing(OUTER_A,OUTER_B,9.0,7.6,2);
+  // Auberge du Foyer d'Or (modèle Meshy, module zones/05-village/02-taverne), demande MOA du 2026-10-23 :
+  // à la place des maisons de la couronne intérieure sous le rond rose (nord-est de la place),
+  // façade tournée vers la fontaine. Ancrage calculé pour laisser ≥ 3 m à la rue circulaire.
+  const INN = { x: 19.48, y: 0, z: -0.19, rotationY: -0.720 };
+  const INN_BOX = { x0: -7.8, x1: 7.5, z0: -6.8, z1: 8.5 };        // emprise locale du modèle (m)
+  let inn = null;                                                   // module de bâtiment, une fois chargé
+  const innLocal = (x, z) => {
+    const dx = x - INN.x, dz = z - INN.z, c = Math.cos(INN.rotationY), s = Math.sin(INN.rotationY);
+    return { x: c * dx - s * dz, z: s * dx + c * dz };
+  };
+  {
+    // Une maison est retirée si son rectangle recoupe l'emprise de l'auberge (test des axes séparateurs).
+    const rectInnLocal = (h) => {
+      const c = Math.cos(h.yaw), s = Math.sin(h.yaw), hw = h.w / 2 + 0.2, hd = h.d / 2 + 0.2;
+      return [[-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]].map(([u, v]) => innLocal(h.x + c * u + s * v, h.z - s * u + c * v));
+    };
+    const overlaps = (h) => {
+      const P = rectInnLocal(h), B = [[INN_BOX.x0, INN_BOX.z0], [INN_BOX.x1, INN_BOX.z0], [INN_BOX.x1, INN_BOX.z1], [INN_BOX.x0, INN_BOX.z1]];
+      const axes = [[1, 0], [0, 1], [P[1].x - P[0].x, P[1].z - P[0].z], [P[3].x - P[0].x, P[3].z - P[0].z]];
+      return axes.every(([ax, az]) => {
+        const pa = P.map((p) => p.x * ax + p.z * az), pb = B.map(([x, z]) => x * ax + z * az);
+        return Math.max(...pa) > Math.min(...pb) && Math.max(...pb) > Math.min(...pa);
+      });
+    };
+    for (let i = houses.length - 1; i >= 0; i--) if (houses[i].ring === 1 && overlaps(houses[i])) houses.splice(i, 1);
+  }
   // Affectation des cinq commerces visibles sur le plan approuvé,
   // sans ajouter un volume hors de la couronne ni déplacer les autres bâtiments.
   const shopTargets=[
     ['Boulanger',-21,VILLAGE_Z-18],
-    ['Taverne',21,VILLAGE_Z-18],
-    ['Auberge',23,VILLAGE_Z+1],
+    // « Taverne » et « Auberge » : réunies dans le modèle 3D de l'auberge (2026-10-23), plus d'enseigne sur une maison.
     ['Armurier',-21,VILLAGE_Z+19],
     ['Forgeron',21,VILLAGE_Z+19]
   ];
@@ -737,6 +763,12 @@ function main(THREE) {
   }
 
   // ---------- Zone praticable ----------
+  function isBlockedByHouse(x, z) {
+    return houses.some(h=>{
+      const dx=x-h.x,dz=z-h.z,c=Math.cos(h.yaw),sn=Math.sin(h.yaw);
+      return Math.abs(dx*c-dz*sn)<h.w/2+.20&&Math.abs(dx*sn+dz*c)<h.d/2+.20;
+    });
+  }
   function isWalkable(x,z){
     if(Math.hypot(x,z-VILLAGE_Z)<FOUNTAIN_R+.35)return false;
     const dz=z-VILLAGE_Z;
@@ -752,6 +784,10 @@ function main(THREE) {
       const dx=x-h.x,dz=z-h.z,c=Math.cos(h.yaw),sn=Math.sin(h.yaw);
       return Math.abs(dx*c-dz*sn)<h.w/2+.20&&Math.abs(dx*sn+dz*c)<h.d/2+.20;
     });
+    if (inn) {
+      const l = innLocal(x, z);
+      if (inn.contains(l.x, l.z)) return !houseBlocked && inn.isFloor(l.x, l.z);
+    }
     let stableFloor=false;
     if(stables){
       const local=stables.root.worldToLocal(new THREE.Vector3(x,0,z));
@@ -820,12 +856,19 @@ function main(THREE) {
     rig.updateMatrixWorld(true);
   }
   let teleports = 0;
+  let lastInnTap = null;
+  function groundAt(x, z) {
+    if (!inn) return 0;
+    const l = innLocal(x, z);
+    return inn.contains(l.x, l.z) ? inn.floorHeight(l.x, l.z) : 0;
+  }
   function teleportTo(x, z, facing) {
     if (fadeState) return;
     startFade(() => {
       const head = headPos();
       rig.position.x += x - head.x;
       rig.position.z += z - head.z;
+      rig.position.y = groundAt(x, z);
       rig.updateMatrixWorld(true);
       if (facing !== undefined) rotateRigAroundHead(facing - headYaw());
       teleports++;
@@ -864,6 +907,18 @@ function main(THREE) {
     // Écuries : toucher une porte, le portail, le foyer ou une lampe à portée de main l'actionne ;
     // toucher le sol de la cour y téléporte ; toucher un mur ne fait rien.
     const sHit = stables ? raycaster.intersectObject(stables.root, true)[0] : null;
+    const iHit = inn ? raycaster.intersectObject(inn.root, true)[0] : null;
+    if (iHit && (!hit || iHit.distance < hit.distance) && (!sHit || iHit.distance < sHit.distance)) {
+      // Auberge : la carte de circulation décide (le modèle Meshy est trop irrégulier pour juger sur la surface touchée).
+      const ip = iHit.point, verdict = inn.classifyHit(ip);
+      lastInnTap = { x: ip.x, y: ip.y, z: ip.z, kind: verdict.kind };
+      if (verdict.kind === 'closed') { $('hint').textContent = verdict.message; return; }   // portes extérieures : non ouvrables
+      const iOk = verdict.kind === 'floor' && !isBlockedByHouse(ip.x, ip.z) && Math.hypot(ip.x - head.x, ip.z - head.z) <= PHONE_MAX;
+      showMarker(ip.x, ip.z, iOk);
+      markerFlash = 0.7;
+      if (iOk) teleportTo(ip.x, ip.z);
+      return;
+    }
     if (sHit && (!hit || sHit.distance < hit.distance)) {
       const it = stableInteractionAt(sHit.point, head);
       if (it) {
@@ -1245,13 +1300,34 @@ function main(THREE) {
     console.info('Écuries chargées', stables.stats, stables.loadMs + ' ms');
   }).catch((err) => { console.error(err); $('hint').textContent = "Les écuries ne se sont pas chargées : " + err.message; });
 
+  // Chargement du module de bâtiment de l'auberge (modèle glTF, chargement asynchrone).
+  Promise.all([import('./zones/05-village/02-taverne/index.js'), import('./core/contracts.js')]).then(([{ createBuilding }, { assertBuildingInstance }]) => {
+    const t0 = performance.now();
+    const building = assertBuildingInstance(createBuilding({ THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy() }, { placement: INN }));
+    scene.add(building.root);
+    return building.ready.then(() => { inn = building; inn.loadMs = Math.round(performance.now() - t0); console.info('Auberge chargée', inn.stats(), inn.loadMs + ' ms'); });
+  }).catch((err) => { console.error(err); $('hint').textContent = "L'auberge ne s'est pas chargée : " + err.message; });
+
   const stableNav = document.createElement('div');
-  stableNav.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 112px);z-index:30;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;pointer-events:none';
+  stableNav.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 206px);z-index:30;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;pointer-events:none';   // au-dessus de l'aide, loin des panneaux du haut
   stableNav.innerHTML = '<button id="stable-jump" style="pointer-events:auto;background:#243f32;color:white;padding:9px;border-radius:6px;min-height:40px">Devant les écuries</button><button id="stable-yard" style="pointer-events:auto;background:#243f32;color:white;padding:9px;border-radius:6px;min-height:40px">Dans la cour</button><a href="./ecuries-v53.html" target="_blank" rel="noopener" style="pointer-events:auto;background:#243f32;color:white;padding:9px 11px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;min-height:22px">Détail V53</a>';
   document.body.appendChild(stableNav);
   const jump = (x, z, yaw) => { rig.position.set(x, 0, z); rig.rotation.y = yaw; pitch = 0; camera.rotation.x = 0; rig.updateMatrixWorld(true); updateHint(); };
   $('stable-jump').addEventListener('click', () => jump(STABLE.x, STABLE.z + 38.2, 0));
   $('stable-yard').addEventListener('click', () => jump(STABLE.x, STABLE.z + 24, 0));
+  // Raccourci « Auberge » : au sol, face à la terrasse, sur la place.
+  {
+    const b = document.createElement('button');
+    b.id = 'inn-jump'; b.textContent = 'Devant l’auberge';
+    b.style.cssText = 'pointer-events:auto;background:#5a3b22;color:white;padding:9px;border-radius:6px;min-height:40px';
+    stableNav.insertBefore(b, stableNav.firstChild);
+    b.addEventListener('click', () => {
+      const c = Math.cos(INN.rotationY), s = Math.sin(INN.rotationY), lx = -2.5, lz = 15;   // devant la façade, sur la place
+      const x = INN.x + c * lx + s * lz, z = INN.z - s * lx + c * lz;
+      if (aerialActive) { aerialActive = false; const t = document.getElementById('aerial-toggle'); if (t) t.textContent = 'Vue aérienne'; }
+      jump(x, z, INN.rotationY);
+    });
+  }
   // Outils de repérage : panoramique tactile, zoom et capture pour annotations.
   const aerialPanel=document.createElement('div');
   aerialPanel.id='aerial-panel';
@@ -1277,6 +1353,11 @@ function main(THREE) {
     goTo: (x, z, yaw, p) => { rig.position.set(x, 0, z); if (yaw !== undefined) rig.rotation.y = yaw; if (p !== undefined) { pitch = p; camera.rotation.x = p; } rig.updateMatrixWorld(true); },
     stables: () => stables && { stats: stables.stats, loadMs: stables.loadMs, interactions: stables.getInteractionPoints().map((i) => ({ id: i.id, open: i.isOpen() })) },
     interact: (id) => { const it = stables && stables.getInteractionPoints().find((i) => i.id === id); return it ? it.action() : null; },
+    inn: () => inn && { stats: inn.stats(), loadMs: inn.loadMs, placement: INN },
+    innLocalToWorld: (lx, lz) => { const c = Math.cos(INN.rotationY), s = Math.sin(INN.rotationY); return { x: INN.x + c * lx + s * lz, z: INN.z - s * lx + c * lz }; },
+    aerial: (on) => { aerialActive = on; },
+    rigY: () => rig.position.y,
+    lastInnTap: () => lastInnTap,
   };
 }
 </script>

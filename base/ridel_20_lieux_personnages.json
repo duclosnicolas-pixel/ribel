@@ -1,7 +1,7 @@
 {
   "projet": "Ribel",
   "registre": "lieux et personnages",
-  "version": "2026-10-18 · décisions MOA du 18 octobre",
+  "version": "2026-10-23 · auberge implantée",
   "lieux_village": {
     "statut": "relevés sur l'ébauche de la MOA et dans le dépôt ; implantations non contractuelles",
     "lieux": [
@@ -18,10 +18,10 @@
         "etat": "prévisualisation ; lampes à redessiner ; au nord du village sur l'axe de la rue nord, porte d'entrée du village (décision MOA du 18/10)"
       },
       {
-        "nom": "Taverne",
-        "type": "taverne-auberge (L'Épée Royale sur l'ébauche, à confirmer)",
+        "nom": "Auberge du Foyer d'Or (taverne-auberge)",
+        "type": "modèle Meshy fourni par le MOA le 23/10, allégé à 78 000 triangles",
         "module": "zones/05-village/02-taverne",
-        "etat": "conception à venir"
+        "etat": "implantée dans la maquette du village au nord-est de la place ; portes non ouvrables ; recette MOA attendue"
       },
       {
         "nom": "Forge",

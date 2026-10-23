@@ -2,6 +2,8 @@
 
 Tu ouvres un **chantier indépendant de modélisation 3D pour la taverne** du village RIBEL, monde Three.js/WebXR de Touraine / vallée de la Loire vers 1450–1550.
 
+**État au 2026-10-23** : le MOA a fourni un modèle Meshy de l'auberge (« Auberge du Foyer d'Or »). La MOE l'a allégé et implanté (module `zones/05-village/02-taverne/`, README et manifeste à lire en premier) dans `ribel-village-maquette-v1.html`, au nord-est de la place. Portes extérieures non ouvrables ; intérieur à concevoir plus tard. Ne remplace pas ce modèle sans demande du MOA.
+
 **Dépôt** : https://github.com/duclosnicolas-pixel/ribel
 
 ## Avant toute modification

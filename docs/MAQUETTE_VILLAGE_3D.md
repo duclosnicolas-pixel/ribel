@@ -17,6 +17,11 @@
 - Est : route vers la zone distincte des greniers, serres et vergers. Ouest : route vers la forêt. Sud : rue vers la zone paroissiale.
 - Rendu : maillages et éléments instanciés, matériaux de la scène existante, aucun second renderer ni seconde boucle d'animation.
 
+## Auberge du Foyer d'Or (2026-10-23)
+- Sur demande du MOA, le modèle Meshy de l'auberge/taverne remplace les trois maisons de la couronne intérieure au nord-est de la place (rond rose de la capture du MOA). Module `zones/05-village/02-taverne/`, chargé par la maquette ; ancrage x 19,48, z −0,19, rotation −0,72.
+- Portes non ouvrables ; circulation entre les bancs, sous les arcades et l'encorbellement ; rue circulaire ≥ 3,5 m ; couronne extérieure intacte. Enseignes « Taverne » et « Auberge » retirées des maisons génériques.
+- Détails : `zones/05-village/02-taverne/README.md`.
+
 ## Frontières de responsabilité
 Les chantiers extérieurs **ne font pas partie de la présente modification du village Z05** : forêt et route forestière à prolonger, zone Z07 (verger, greniers, serres), paroisse (cimetières et cloître), château Z02/Z03 et route après sortie du périmètre village. Les éléments existants de décor au sud sont conservés provisoirement, pas validés comme modèles définitifs de la paroisse.
 

@@ -1,7 +1,82 @@
 {
   "id": "taverne",
   "zone": "village",
-  "status": "design-pending",
-  "placement": null,
-  "model": null
+  "zoneId": "Z05",
+  "label": "Auberge du Foyer d'Or (taverne-auberge)",
+  "period": "XVe siècle (modèle Meshy fourni par le MOA, à juger en recette)",
+  "status": "module-integrated-in-mockup-awaiting-moa-recette",
+  "source": {
+    "fichier": "Meshy_AI_The_Golden_Hearth_Inn_1023140607_texture.glb",
+    "fourni_par": "MOA",
+    "date": "2026-10-23",
+    "poids": "137 Mo",
+    "triangles": 4339432,
+    "textures": "3 × 2048 px (couleur, normales, métal/rugosité)",
+    "conserve": "hors dépôt (dépasse la limite GitHub de 100 Mo) ; à garder par le MOA pour toute régénération"
+  },
+  "modele": {
+    "fichier": "auberge.glb",
+    "poids": "2,3 Mo",
+    "triangles": 78062,
+    "textures": "couleur 2048 px WebP, normales 1024 px WebP ; métal 0 et rugosité 0,62 constants (carte quasi uniforme)",
+    "compression": "EXT_meshopt_compression, KHR_mesh_quantization, EXT_texture_webp",
+    "appels_de_rendu": 1
+  },
+  "echelle": {
+    "metres_par_unite": 9,
+    "repères": "tables 0,85 m, bancs 0,5 m, passage sous les arcades 2,3 m, porte principale 1,75 m",
+    "emprise": "15,3 × 15,3 m (en L, terrasse couverte à gauche)",
+    "hauteur": "9,4 m"
+  },
+  "placement": {
+    "x": 19.48,
+    "y": 0,
+    "z": -0.19,
+    "rotationY": -0.72,
+    "status": "proposé par la MOE d'après le rond rose du MOA (2026-10-23), à valider en recette",
+    "logique": "façade principale tournée vers la fontaine ; remplace les trois maisons de la couronne intérieure au nord-est de la place ; ≥ 3,5 m laissés à la rue circulaire, couronne extérieure intacte ; le perron et la terrasse avancent d'environ 11 m² sur le bord de la place",
+    "page": "ribel-village-maquette-v1.html"
+  },
+  "circulation": {
+    "fichier": "nav.json",
+    "calculee_sur": "géométrie complète (4,34 M triangles)",
+    "cellule": "7,2 cm",
+    "regle": "debout si aucun obstacle à moins de 0,12 m entre 0,2 et 0,9 m (jambes) ni à moins de 0,22 m entre 0,9 et 1,9 m (buste, tête), au-dessus du sol local ; seulement les endroits reliés à l'extérieur sans traverser mur, porte ou poteau",
+    "praticable": [
+      "abords",
+      "terrasse couverte, entre les bancs et les tables",
+      "sous les arcades",
+      "sous l'encorbellement",
+      "perron de la porte principale (sol local jusqu'à 0,31 m)"
+    ],
+    "inaccessible": [
+      "intérieur",
+      "mobilier"
+    ]
+  },
+  "entrees": [
+    {
+      "id": "porte-principale",
+      "localPosition": {
+        "x": 0.25,
+        "y": 1.2,
+        "z": 6.3
+      },
+      "etat": "fermée — non ouvrable (décision MOA du 2026-10-23)"
+    }
+  ],
+  "interactions": "toucher une porte ou la façade : message « L'auberge est fermée pour l'instant » ; aucune porte ne s'ouvre",
+  "module": {
+    "entree": "index.js",
+    "contrat": "createBuilding(context, config) → { root, ready, update, dispose, getColliders, getInteractionPoints, isFloor, floorHeight, isEnclosed, classifyHit, contains }",
+    "chargement": "asynchrone (promesse ready) ; chargeur glTF via la carte d'import « three/addons/ » ou context.loadGLTF",
+    "previsualisation_module": "../../../previews/taverne-module.html",
+    "outils": "tools/taverne/ (optimize.mjs, navgrid.py, glbread.py)"
+  },
+  "personnage": "AB — tavernier (characters/AB-tavernier), priorité basse",
+  "openPoints": [
+    "intérieur et ouverture des portes : lot ultérieur",
+    "terrasse très meublée dans le modèle : on se pose entre les bancs par téléportation, sans allée continue",
+    "proportions Meshy : porte un peu basse au regard des tables"
+  ]
 }
