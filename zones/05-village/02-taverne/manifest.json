@@ -4,7 +4,7 @@
   "zoneId": "Z05",
   "label": "Auberge du Foyer d'Or (taverne-auberge)",
   "period": "XVe siècle (modèle Meshy fourni par le MOA, à juger en recette)",
-  "status": "module-integrated-in-mockup-awaiting-moa-recette",
+  "status": "hq-module-integrated-in-mockup-awaiting-moa-recette",
   "source": {
     "fichier": "Meshy_AI_The_Golden_Hearth_Inn_1023140607_texture.glb",
     "fourni_par": "MOA",
@@ -15,12 +15,27 @@
     "conserve": "hors dépôt (dépasse la limite GitHub de 100 Mo) ; à garder par le MOA pour toute régénération"
   },
   "modele": {
-    "fichier": "auberge.glb",
-    "poids": "2,3 Mo",
-    "triangles": 78062,
-    "textures": "couleur 2048 px WebP, normales 1024 px WebP ; métal 0 et rugosité 0,62 constants (carte quasi uniforme)",
-    "compression": "EXT_meshopt_compression, KHR_mesh_quantization, EXT_texture_webp",
-    "appels_de_rendu": 1
+    "chaine": "tools/hq (décision MOA du 2026-10-23 : haute qualité, comme les bâtiments suivants)",
+    "affichage": "core/hq-building.js — niveaux de détail, textures partagées, ombres, reflets du ciel",
+    "fichiers": "hq/ (hq.json, geo-max.glb, geo-casque.glb, geo-loin.glb, tex-couleur.jpg, tex-normales.jpg, tex-normales-casque.webp, tex-orm.webp)",
+    "niveaux": {
+      "max": {
+        "triangles": 4339432,
+        "usage": "téléphone, < 32 m"
+      },
+      "casque": {
+        "triangles": 199910,
+        "usage": "casque ; téléphone 32 à 75 m",
+        "reliefs": "cuits depuis la géométrie complète"
+      },
+      "loin": {
+        "triangles": 51966,
+        "usage": "au-delà"
+      }
+    },
+    "textures": "couleur et normales d'origine Meshy (2048 px, non réencodées) ; ORM : occlusion cuite (Cycles) + rugosité d'origine ; normales casque cuites (2048 px, sans perte)",
+    "poids_total": "44 Mo (géométrie complète : 24 Mo)",
+    "version_precedente": "auberge.glb (78 000 triangles, 2,3 Mo) jugée laide par le MOA le 2026-10-23 — retirée"
   },
   "echelle": {
     "metres_par_unite": 9,
@@ -33,7 +48,7 @@
     "y": 0,
     "z": -0.19,
     "rotationY": -0.72,
-    "status": "proposé par la MOE d'après le rond rose du MOA (2026-10-23), à valider en recette",
+    "status": "validé par le MOA le 2026-10-23 (recul de ~11 m² sur la place accepté)",
     "logique": "façade principale tournée vers la fontaine ; remplace les trois maisons de la couronne intérieure au nord-est de la place ; ≥ 3,5 m laissés à la rue circulaire, couronne extérieure intacte ; le perron et la terrasse avancent d'environ 11 m² sur le bord de la place",
     "page": "ribel-village-maquette-v1.html"
   },
@@ -68,15 +83,22 @@
   "interactions": "toucher une porte ou la façade : message « L'auberge est fermée pour l'instant » ; aucune porte ne s'ouvre",
   "module": {
     "entree": "index.js",
-    "contrat": "createBuilding(context, config) → { root, ready, update, dispose, getColliders, getInteractionPoints, isFloor, floorHeight, isEnclosed, classifyHit, contains }",
-    "chargement": "asynchrone (promesse ready) ; chargeur glTF via la carte d'import « three/addons/ » ou context.loadGLTF",
+    "contrat": "createBuilding(context, config) → { root, ready, readyAll, update, dispose, getColliders, getInteractionPoints, setQuality, getQuality, isFloor, floorHeight, isEnclosed, classifyHit, contains, stats }",
+    "chargement": "asynchrone : niveau léger d'abord (affichage rapide), puis les niveaux utiles à la qualité ; chargeur glTF via la carte d'import « three/addons/ » ou context.loadGLTF",
     "previsualisation_module": "../../../previews/taverne-module.html",
-    "outils": "tools/taverne/ (optimize.mjs, navgrid.py, glbread.py)"
+    "outils": "tools/hq/ (build.sh, navgrid.py…)",
+    "contexte": "THREE, maxAnisotropy, envMap (reflets du ciel, PMREM), onShadowsDirty (ombres statiques à recalculer)"
   },
   "personnage": "AB — tavernier (characters/AB-tavernier), priorité basse",
   "openPoints": [
     "intérieur et ouverture des portes : lot ultérieur",
     "terrasse très meublée dans le modèle : on se pose entre les bancs par téléportation, sans allée continue",
-    "proportions Meshy : porte un peu basse au regard des tables"
+    "proportions Meshy : porte un peu basse au regard des tables",
+    "fluidité du niveau « max » à vérifier sur le Fold 6 (4,34 M triangles de près)"
+  ],
+  "decisions_moa": [
+    "2026-10-23 : implantation à la place des bâtiments sous le rond rose ; portes extérieures non ouvrables ; circulation entre les bancs, sous les arcades et l'encorbellement",
+    "2026-10-23 : recul sur la place validé ; enseignes « Taverne » et « Auberge » des maisons voisines supprimées",
+    "2026-10-23 : intégration en haute qualité, comme les bâtiments suivants ; contrainte d'hébergement levée"
   ]
 }

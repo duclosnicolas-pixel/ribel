@@ -30,7 +30,8 @@
 - Écuries au nord du village, en plein sur l'axe de la rue nord : porte d'entrée du village (on dépose sa monture, puis on entre). Ancrage x 0, z −72, portail au sud face à la rue (z −39,7).
 - Module des écuries : `zones/05-village/01-ecuries/index.js`, géométrie générée depuis `ecuries-v53.html` par `tools/extract-ecuries-v53.mjs` — modéliser dans la page de référence, jamais dans `v53-geometry.js`. Voir le README du module.
 - **Pas d'église au nord** : supprimée strictement par le MOA le 2026-10-18 ; ne pas la réintroduire.
-- Taverne : module `zones/05-village/02-taverne/` (modèle Meshy « Auberge du Foyer d'Or » allégé, 78 000 triangles) implanté dans `ribel-village-maquette-v1.html` au nord-est de la place ; **portes extérieures non ouvrables** jusqu'à décision du MOA ; ne jamais committer le modèle source (137 Mo) ; circulation régénérée par `tools/taverne/navgrid.py`.
+- Taverne : module `zones/05-village/02-taverne/` (modèle Meshy « Auberge du Foyer d'Or », **haute qualité** : niveaux `max` 4,34 M / `casque` 200 k / `loin` 52 k) implanté dans `ribel-village-maquette-v1.html` au nord-est de la place ; **portes extérieures non ouvrables** jusqu'à décision du MOA ; ne jamais committer le modèle source (137 Mo).
+- **Bâtiments : haute qualité obligatoire** (décision MOA du 2026-10-23). Tout nouveau modèle passe par `tools/hq/build.sh` et s'affiche par `core/hq-building.js` (niveaux de détail, occlusion cuite, reliefs cuits pour le casque, ombres, reflets du ciel). Ne plus livrer de version simplement décimée.
 - RIBEL : Touraine / Loire, XVe siècle, fabrication artisanale sans précision industrielle ; véritable 3D Three.js/WebXR, pas d'images de substitution.
 - Téléphone cible : Samsung Galaxy Z Fold 6.
 

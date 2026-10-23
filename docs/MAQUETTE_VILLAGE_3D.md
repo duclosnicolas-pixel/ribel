@@ -19,7 +19,8 @@
 
 ## Auberge du Foyer d'Or (2026-10-23)
 - Sur demande du MOA, le modèle Meshy de l'auberge/taverne remplace les trois maisons de la couronne intérieure au nord-est de la place (rond rose de la capture du MOA). Module `zones/05-village/02-taverne/`, chargé par la maquette ; ancrage x 19,48, z −0,19, rotation −0,72.
-- Portes non ouvrables ; circulation entre les bancs, sous les arcades et l'encorbellement ; rue circulaire ≥ 3,5 m ; couronne extérieure intacte. Enseignes « Taverne » et « Auberge » retirées des maisons génériques.
+- Portes non ouvrables ; circulation entre les bancs, sous les arcades et l'encorbellement ; rue circulaire ≥ 3,5 m ; couronne extérieure intacte. Enseignes « Taverne » et « Auberge » retirées des maisons génériques (validé par le MOA).
+- Haute qualité (23/10 soir) : niveaux de détail de l'auberge ; **ombres du soleil sur tout le village** dans un carré de 72 m centré sur le visiteur, calculées une fois puis à chaque téléportation (`?ombres=0` pour les couper) ; reflets d'un ciel dégradé pour les matériaux PBR ; sélecteur « Auberge : maximale / casque / légère ».
 - Détails : `zones/05-village/02-taverne/README.md`.
 
 ## Frontières de responsabilité

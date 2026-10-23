@@ -1,6 +1,6 @@
-# Usage : python3 -I tools/taverne/navgrid.py <modèle source complet.glb> <échelle> <sortie nav.json> [marge jambes] [marge buste]
-# Exemple : python3 -I tools/taverne/navgrid.py Meshy_AI_The_Golden_Hearth_Inn_texture.glb 9 zones/05-village/02-taverne/nav.json 0.12 0.22
-"""Carte de circulation de l'auberge : où un visiteur peut se tenir debout.
+# Usage : python3 -I tools/hq/navgrid.py <modèle source complet.glb> <échelle> <sortie nav.json> [marge jambes] [marge buste] [dessus de dalle]
+# Exemple (auberge) : python3 -I tools/hq/navgrid.py Meshy_AI_The_Golden_Hearth_Inn_texture.glb 9 zones/05-village/02-taverne/nav.json 0.12 0.22 -0.517
+"""Carte de circulation d'un bâtiment : où un visiteur peut se tenir debout autour et sous ses avancées.
 Place debout = pas d'obstacle à moins de 0,12 m entre +0,2 et +0,9 m (jambes), ni à moins de 0,22 m
 entre +0,9 et +1,9 m (buste, tête). Seuls comptent les endroits reliés à l'extérieur sans traverser
 un mur, une porte ou un poteau : l'intérieur reste inaccessible, les portes ne s'ouvrent pas."""
@@ -14,10 +14,11 @@ S = float(sys.argv[2]) if len(sys.argv) > 2 else 9.0       # mètres par unité 
 SRC = sys.argv[1]
 gl, P, I = read_glb(SRC)
 V = P[I].astype(np.float64)
-G = -0.517                                    # dessus de la dalle de base (unités modèle)
+G = float(sys.argv[6]) if len(sys.argv) > 6 else float(P[:, 1].min()) + 0.01   # dessus de la dalle de base (unités modèle)
 C = 0.008                                     # 7,2 cm à l'échelle 9
-x0, z0 = -0.90, -0.79
-nx = nz = int(1.78 / C) + 1
+x0, z0 = float(P[:, 0].min()) - 0.03, float(P[:, 2].min()) - 0.03
+nx = int((float(P[:, 0].max()) + 0.03 - x0) / C) + 1
+nz = int((float(P[:, 2].max()) + 0.03 - z0) / C) + 1
 n = np.cross(V[:, 1] - V[:, 0], V[:, 2] - V[:, 0]); ln = np.linalg.norm(n, axis=1); ny = n[:, 1] / np.maximum(ln, 1e-15)
 # échantillons : sommets, milieux, centre ; grands triangles rasterisés plus finement
 small = (np.ptp(V[:, :, 0], axis=1) < C) & (np.ptp(V[:, :, 2], axis=1) < C)
@@ -80,8 +81,8 @@ def rle(a):
     out += [prev, cnt]; return out
 fl_walk = np.where(walk, floor_cm, 0)
 nav = {
-    'version': 1, 'source': 'Meshy_AI_The_Golden_Hearth_Inn (géométrie complète, 4,34 M triangles)',
-    'unite': 'mètres, repère local du bâtiment (x est du modèle, z vers la façade principale)',
+    'version': 1, 'source': os.path.basename(SRC) + ' (géométrie complète, %d triangles)' % len(I),
+    'unite': 'mètres, repère local du bâtiment (x est du modèle, z vers la façade principale)', 'dessus_dalle': G,
     'echelle': S, 'cellule': round(C * S, 4), 'x0': round(x0 * S, 4), 'z0': round(z0 * S, 4), 'nx': nx, 'nz': nz,
     'regle': 'praticable = pas d obstacle à moins de 0,12 m entre +0,2 et +0,9 m (jambes), ni à moins de 0,22 m entre +0,9 et +1,9 m (buste, tête), au-dessus du sol local ; accessible depuis l extérieur',
     'praticable_rle': rle(walk.astype(np.uint8)), 'sol_cm_rle': rle(fl_walk), 'bati_ferme_rle': rle(enclosed.astype(np.uint8)),

@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "id": "taverne",
+  "label": "Auberge du Foyer d'Or",
+  "source": "inn.glb — conservé hors dépôt",
+  "scale": 9.0,
+  "slabTop": -0.517,
+  "groundOffset": 0.03,
+  "textures": {
+    "couleur": {
+      "file": "tex-couleur.jpg",
+      "colorSpace": "srgb",
+      "origine": "texture de couleur d'origine, non réencodée",
+      "octets": 4440565
+    },
+    "normales": {
+      "file": "tex-normales.jpg",
+      "colorSpace": "linear",
+      "origine": "carte de normales d'origine, non réencodée",
+      "octets": 3306055
+    },
+    "normalesCasque": {
+      "file": "tex-normales-casque.webp",
+      "colorSpace": "linear",
+      "origine": "reliefs de la géométrie complète cuits sur le niveau casque, sans perte",
+      "octets": 6230864
+    },
+    "orm": {
+      "file": "tex-orm.webp",
+      "colorSpace": "linear",
+      "origine": "R : occlusion ambiante cuite sur la géométrie complète ; G : rugosité d'origine ; B : métal 0 — sans perte",
+      "octets": 3887530
+    }
+  },
+  "niveaux": [
+    {
+      "id": "max",
+      "file": "geo-max.glb",
+      "textures": {
+        "map": "couleur",
+        "normalMap": "normales",
+        "orm": "orm"
+      },
+      "usage": "téléphone, de près : géométrie complète d'origine",
+      "triangles": 4339432,
+      "octets": 23771912
+    },
+    {
+      "id": "casque",
+      "file": "geo-casque.glb",
+      "textures": {
+        "map": "couleur",
+        "normalMap": "normalesCasque",
+        "orm": "orm"
+      },
+      "usage": "casque, et distance moyenne au téléphone",
+      "triangles": 199910,
+      "octets": 2147120
+    },
+    {
+      "id": "loin",
+      "file": "geo-loin.glb",
+      "textures": {
+        "map": "couleur",
+        "normalMap": "normales",
+        "orm": "orm"
+      },
+      "usage": "au loin",
+      "triangles": 51966,
+      "octets": 614756
+    }
+  ],
+  "qualites": {
+    "max": [
+      [
+        "max",
+        0
+      ],
+      [
+        "casque",
+        32
+      ],
+      [
+        "loin",
+        75
+      ]
+    ],
+    "casque": [
+      [
+        "casque",
+        0
+      ],
+      [
+        "loin",
+        45.0
+      ]
+    ],
+    "leger": [
+      [
+        "loin",
+        0
+      ]
+    ]
+  },
+  "materiau": {
+    "roughness": 1,
+    "metalness": 0,
+    "aoMapIntensity": 1,
+    "envMapIntensity": 0.45,
+    "side": "double"
+  },
+  "distances": "mesurées du centre du bâtiment (m) ; « max » ne sert jamais au casque"
+}

@@ -28,6 +28,7 @@ Chaque module de zone exportera `createZone(context)` et `dispose()`. Chaque bâ
 - `ecuries-v53.html` : page de modélisation de référence des écuries ; ne pas remplacer.
 - `zones/05-village/01-ecuries/index.js` : premier module de bâtiment au contrat `createBuilding` (2026-10-18) ; géométrie générée depuis la page de référence par `tools/extract-ecuries-v53.mjs`.
 - `core/static-merge.js` et `core/hinged-parts.js` : regroupement des pièces fixes par matériau et portes pivotant dans le shader — à réutiliser pour chaque bâtiment.
+- `core/hq-building.js` + `tools/hq/` : bâtiments haute qualité issus d'un modèle complet (Meshy…) — niveaux de détail (`max` téléphone de près, `casque` reliefs cuits, `loin`), textures partagées, occlusion cuite ; l'hôte fournit les reflets du ciel et les ombres. Premier usage : la taverne (2026-10-23).
 - `ribel-ecuries-nord-preview.html` : village + vrai modèle des écuries, chargé comme module (plus de maquette volumétrique).
 - `index.html` : village principal conservé ; église du nord supprimée le 2026-10-18 (sauvegarde `index-avant-suppression-eglise.html`).
 - `index-avant-ecuries-nord.html` : sauvegarde existante.

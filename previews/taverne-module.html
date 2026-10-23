@@ -21,11 +21,14 @@ button { min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px so
 <body>
 <canvas id="c"></canvas>
 <div class="panel" id="info"><strong>Auberge du Foyer d'Or — module de bâtiment seul</strong>
-<span>Modèle Meshy allégé, éclairé comme le village. Glisser pour tourner autour. Vert : où l'on peut se tenir (terrasse, arcades, encorbellement). Les portes restent fermées.</span>
+<span>Haute qualité : géométrie complète de près au téléphone, version casque aux reliefs cuits, occlusion cuite, ombres et reflets du ciel, avec l'éclairage du village. Glisser pour tourner autour. Vert : où l'on peut se tenir. Les portes restent fermées.</span>
 <div id="stats">Chargement…</div></div>
 <div class="panel" id="bar">
   <button data-view="facade">Façade</button><button data-view="terrasse">Terrasse</button><button data-view="arriere">Arrière</button><button data-view="haut">Vue haute</button>
   <button id="navbtn">Montrer la circulation</button>
+  <select id="quality" style="min-height:44px;padding:8px;border-radius:8px;border:1px solid #a7b3a3;background:#2f4438;color:#f3ecdf;font:inherit">
+    <option value="max">Qualité maximale</option><option value="casque">Qualité casque</option><option value="leger">Qualité légère</option>
+  </select>
 </div>
 <script type="module">
 const THREE = await import('three');
@@ -44,12 +47,35 @@ const sun = new THREE.DirectionalLight(0xfff0d8, 2.2); sun.position.set(-60, 90,
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400, 20, 20), new THREE.MeshLambertMaterial({ color: 0x849778 }));
 ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; scene.add(ground);
 const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 600);
+// Reflets du ciel et ombres statiques, comme dans la maquette du village.
+const skyEnvMap = (() => {
+  const w = 64, h = 32, data = new Uint8Array(w * h * 4);
+  const zenith = new THREE.Color(0x86a6cc), horizon = new THREE.Color(0xc5d3dc), soil = new THREE.Color(0x7d806a), c = new THREE.Color();
+  for (let y = 0; y < h; y++) {
+    const v = (y + 0.5) / h;
+    if (v >= 0.5) c.copy(horizon).lerp(zenith, Math.pow((v - 0.5) / 0.5, 0.7)); else c.copy(horizon).lerp(soil, Math.pow((0.5 - v) / 0.5, 0.5));
+    for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; data[i] = c.r * 255; data[i + 1] = c.g * 255; data[i + 2] = c.b * 255; data[i + 3] = 255; }
+  }
+  const tex = new THREE.DataTexture(data, w, h); tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; tex.needsUpdate = true;
+  const pm = new THREE.PMREMGenerator(renderer); const env = pm.fromEquirectangular(tex).texture; tex.dispose(); pm.dispose(); return env;
+})();
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap; renderer.shadowMap.autoUpdate = false;
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+{ const sc = sun.shadow.camera; sc.left = -20; sc.right = 20; sc.top = 20; sc.bottom = -20; sc.near = 40; sc.far = 220; sc.updateProjectionMatrix();
+  sun.position.normalize().multiplyScalar(120); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; }
+ground.receiveShadow = true;
+const shadowsDirty = () => { renderer.shadowMap.needsUpdate = true; };
 
 const t0 = performance.now();
-const building = assertBuildingInstance(createBuilding({ THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy() }, {}));
+const quality = new URLSearchParams(location.search).get('qualite') || 'max';
+document.getElementById('quality').value = quality;
+const building = assertBuildingInstance(createBuilding({ THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy(), envMap: skyEnvMap, onShadowsDirty: shadowsDirty }, { quality, shadows: true }));
+document.getElementById('quality').onchange = (e) => building.setQuality(e.target.value);
 scene.add(building.root);
 let loadMs = null;
-building.ready.then(() => { loadMs = Math.round(performance.now() - t0); buildNavOverlay(); }).catch((e) => { document.getElementById('stats').textContent = 'Erreur : ' + e.message; });
+let loadAllMs = null;
+building.ready.then(() => { loadMs = Math.round(performance.now() - t0); buildNavOverlay(); shadowsDirty(); }).catch((e) => { document.getElementById('stats').textContent = 'Erreur : ' + e.message; });
+building.readyAll.then(() => { loadAllMs = Math.round(performance.now() - t0); shadowsDirty(); });
 
 // Calque de circulation : pastilles vertes là où l'on peut se tenir debout.
 let navOverlay = null;
@@ -106,9 +132,10 @@ renderer.setAnimationLoop((now) => {
   renderer.render(scene, camera);
   frames++; acc += dt; if (acc > 0.5) { fps = Math.round(frames / acc); frames = 0; acc = 0; }
   const calls = renderer.info.render.calls, tris = renderer.info.render.triangles;
-  if (loadMs !== null) stats.innerHTML = `${fps} i/s · appels <b data-ok="1">${calls}</b> · triangles <b data-ok="${tris <= 100000 ? 1 : 0}">${Math.round(tris / 1000)} k</b> (modèle ≈ 78 k) · chargé en ${loadMs} ms`;
+  const st = building.stats();
+  if (loadMs !== null) stats.innerHTML = `${fps} i/s · appels <b data-ok="1">${calls}</b> · triangles <b data-ok="1">${tris >= 1e6 ? (tris / 1e6).toFixed(2).replace('.', ',') + ' M' : Math.round(tris / 1000) + ' k'}</b> · niveau « ${st.level || '…'} » · affiché en ${loadMs} ms${loadAllMs ? ', détail complet en ' + loadAllMs + ' ms' : ', détail en cours…'}`;
 });
-window.ribelModule = { building, setView, showNav: (on) => { if (navOverlay) navOverlay.visible = on; }, stats: () => ({ calls: renderer.info.render.calls, tris: renderer.info.render.triangles, loadMs, model: building.stats() }) };
+window.ribelModule = { building, setView, showNav: (on) => { if (navOverlay) navOverlay.visible = on; }, stats: () => ({ calls: renderer.info.render.calls, tris: renderer.info.render.triangles, loadMs, loadAllMs, model: building.stats() }) };
 </script>
 </body>
 </html>

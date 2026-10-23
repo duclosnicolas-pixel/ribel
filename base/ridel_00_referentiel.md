@@ -51,8 +51,10 @@
 
 ## Auberge du Foyer d'Or (23 octobre)
 - Demande MOA : modèle Meshy de l'auberge/taverne à la place des bâtiments sous le rond rose de la vue aérienne de `ribel-village-maquette-v1.html` ; portes extérieures non ouvrables ; circulation entre les bancs, sous les arcades et sous l'encorbellement.
-- Fait : module `zones/05-village/02-taverne/` ; modèle 137 Mo / 4,34 M triangles allégé à 2,3 Mo / 78 000 triangles ; échelle 9 m par unité (tables 0,85 m, arcades 2,3 m, porte 1,75 m) ; trois maisons de la couronne intérieure remplacées ; rue circulaire ≥ 3,5 m ; perron et terrasse avancent d'environ 11 m² sur la place.
-- Recette MOA attendue.
+- Décisions MOA (soir) : recul sur la place validé ; anciennes enseignes « Taverne » et « Auberge » supprimées ; première version (78 000 triangles) jugée laide → **haute qualité pour ce bâtiment et tous les suivants**, contrainte d'hébergement levée.
+- Constat MOE : GitHub n'était pas la limite (géométrie complète compressée 24 Mo, ensemble 44 Mo) ; la perte venait de la réduction à 2 % des triangles et de l'éclairage plat.
+- Fait : chaîne `tools/hq/` et `core/hq-building.js` ; téléphone de près = géométrie complète (4,34 M triangles) ; casque = 200 000 triangles avec les reliefs de la géométrie complète cuits ; loin = 52 000 ; occlusion ambiante cuite ; ombres du soleil sur le village autour du visiteur ; reflets du ciel. Écart avec l'original : nul au téléphone, moins de 1 % des pixels au casque.
+- Recette MOA attendue (fluidité du niveau maximal sur le Fold 6 à vérifier).
 
 ## Contrôle technique MOE du 18 octobre (navigateur sans écran, rendu logiciel — pas une recette)
 | Page | Erreurs JS | Appels de rendu / image | Triangles / image |

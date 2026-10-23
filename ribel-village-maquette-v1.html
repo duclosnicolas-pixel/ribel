@@ -870,6 +870,7 @@ function main(THREE) {
       rig.position.z += z - head.z;
       rig.position.y = groundAt(x, z);
       rig.updateMatrixWorld(true);
+      if (SHADOWS_ON) focusShadows(x, z);
       if (facing !== undefined) rotateRigAroundHead(facing - headYaw());
       teleports++;
       updateHint();
@@ -1283,6 +1284,7 @@ function main(THREE) {
     updateDrops(elapsed);
     rippleTex.rotation += dt * 0.04;
     if (stables) stables.update(dt);
+    if (inn) inn.update(dt);
     if (markerFlash > 0) { markerFlash -= dt; if (markerFlash <= 0) marker.visible = false; }
     renderer.render(scene, aerialActive && !renderer.xr.isPresenting ? aerialCamera : camera);
     lastCalls = renderer.info.render.calls;
@@ -1296,23 +1298,88 @@ function main(THREE) {
     const t0 = performance.now();
     stables = assertBuildingInstance(createBuilding({ THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy() }, { placement: STABLE, merge: new URLSearchParams(location.search).get('fusion') !== '0' }));   // ?fusion=0 : pièces séparées, pour comparaison
     scene.add(stables.root);
+    if (typeof applyShadowFlags === 'function' && SHADOWS_ON) { applyShadowFlags(stables.root); shadowsDirty(); }
     stables.loadMs = Math.round(performance.now() - t0);
     console.info('Écuries chargées', stables.stats, stables.loadMs + ' ms');
   }).catch((err) => { console.error(err); $('hint').textContent = "Les écuries ne se sont pas chargées : " + err.message; });
 
-  // Chargement du module de bâtiment de l'auberge (modèle glTF, chargement asynchrone).
+  // ---------- Auberge haute qualité (décision MOA du 2026-10-23) ----------
+  // Reflets du ciel : ciel dégradé converti en carte d'environnement préfiltrée (PMREM), pour les matériaux PBR.
+  const skyEnvMap = (() => {
+    const w = 64, h = 32, data = new Uint8Array(w * h * 4);
+    const zenith = new THREE.Color(0x86a6cc), horizon = new THREE.Color(FOG), soil = new THREE.Color(0x7d806a), c = new THREE.Color();
+    for (let y = 0; y < h; y++) {
+      const v = (y + 0.5) / h;                               // 0 = sol, 1 = zénith (projection équirectangulaire)
+      if (v >= 0.5) c.copy(horizon).lerp(zenith, Math.pow((v - 0.5) / 0.5, 0.7)); else c.copy(horizon).lerp(soil, Math.pow((0.5 - v) / 0.5, 0.5));
+      for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; data[i] = c.r * 255; data[i + 1] = c.g * 255; data[i + 2] = c.b * 255; data[i + 3] = 255; }
+    }
+    const tex = new THREE.DataTexture(data, w, h);
+    tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; tex.needsUpdate = true;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const env = pmrem.fromEquirectangular(tex).texture;
+    tex.dispose(); pmrem.dispose();
+    return env;
+  })();
+  // Ombres du soleil sur tout le village, dans un carré de 72 m centré sur le visiteur. Scène immobile :
+  // la carte d'ombres est calculée une fois, puis à chaque téléportation (pendant le fondu) ou changement
+  // de niveau de détail de l'auberge. ?ombres=0 pour les couper.
+  const SHADOWS_ON = new URLSearchParams(location.search).get('ombres') !== '0';
+  const SHADOW_HALF = 36;
+  const sunDir = sun.position.clone().normalize();          // même direction de soleil qu'avant
+  renderer.shadowMap.enabled = SHADOWS_ON;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.shadowMap.autoUpdate = false;
+  scene.add(sun.target);
+  sun.castShadow = SHADOWS_ON;
+  sun.shadow.mapSize.set(2048, 2048);
+  {
+    const sc = sun.shadow.camera;
+    sc.left = -SHADOW_HALF; sc.right = SHADOW_HALF; sc.top = SHADOW_HALF; sc.bottom = -SHADOW_HALF; sc.near = 40; sc.far = 220;
+    sc.updateProjectionMatrix();
+    sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
+  }
+  const shadowsDirty = () => { renderer.shadowMap.needsUpdate = true; };
+  function focusShadows(x, z) {
+    sun.target.position.set(x, 0, z);
+    sun.position.copy(sun.target.position).addScaledVector(sunDir, 120);
+    sun.target.updateMatrixWorld(); sun.updateMatrixWorld();
+    shadowsDirty();
+  }
+  // Qui porte et qui reçoit les ombres : bâtiments, fontaine, écuries, arbres ; sols et pavés reçoivent seulement.
+  const receiveOnly = new Set([ground, paving, bands]);
+  function applyShadowFlags(root) {
+    root.traverse((o) => {
+      if (!(o.isMesh || o.isInstancedMesh) || !o.material || o.material.isMeshBasicMaterial || o.material.isPointsMaterial) return;
+      if (receiveOnly.has(o)) { o.receiveShadow = true; return; }
+      if (o.material === M.hill) return;                      // collines lointaines : hors du carré d'ombres
+      for (let p = o.parent; p; p = p.parent) if (p === rig) return;   // visiteur, manettes : jamais (ombres figées)
+      o.castShadow = true; o.receiveShadow = true;
+    });
+  }
+  if (SHADOWS_ON) { applyShadowFlags(scene); focusShadows(rig.position.x, rig.position.z); }
+  // Qualité : « max » au téléphone (géométrie complète de près), « casque » en VR, « leger » au besoin (?qualite=).
+  const QUALITY_LABELS = { max: 'maximale', casque: 'casque', leger: 'légère' };
+  // Navigateur d'un casque (Quest, Pico…) : qualité casque d'emblée, même avant d'entrer en VR.
+  const HEADSET_BROWSER = /OculusBrowser|Quest|Pico|Vision Pro/i.test(navigator.userAgent);
+  let innQuality = (new URLSearchParams(location.search).get('qualite') || (HEADSET_BROWSER ? 'casque' : 'max'));
+  if (!QUALITY_LABELS[innQuality]) innQuality = 'max';
   Promise.all([import('./zones/05-village/02-taverne/index.js'), import('./core/contracts.js')]).then(([{ createBuilding }, { assertBuildingInstance }]) => {
     const t0 = performance.now();
-    const building = assertBuildingInstance(createBuilding({ THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy() }, { placement: INN }));
+    const building = assertBuildingInstance(createBuilding(
+      { THREE, maxAnisotropy: renderer.capabilities.getMaxAnisotropy(), envMap: skyEnvMap, onShadowsDirty: shadowsDirty },
+      { placement: INN, quality: renderer.xr.isPresenting ? 'casque' : innQuality, shadows: SHADOWS_ON }));
     scene.add(building.root);
-    return building.ready.then(() => { inn = building; inn.loadMs = Math.round(performance.now() - t0); console.info('Auberge chargée', inn.stats(), inn.loadMs + ' ms'); });
+    building.readyAll.then(() => { building.loadAllMs = Math.round(performance.now() - t0); console.info('Auberge : tous niveaux chargés', building.stats(), building.loadAllMs + ' ms'); shadowsDirty(); });
+    return building.ready.then(() => { inn = building; inn.loadMs = Math.round(performance.now() - t0); console.info('Auberge affichée', inn.stats(), inn.loadMs + ' ms'); shadowsDirty(); });
   }).catch((err) => { console.error(err); $('hint').textContent = "L'auberge ne s'est pas chargée : " + err.message; });
+  renderer.xr.addEventListener('sessionstart', () => { inn?.setQuality('casque'); });
+  renderer.xr.addEventListener('sessionend', () => { inn?.setQuality(innQuality); });
 
   const stableNav = document.createElement('div');
   stableNav.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 206px);z-index:30;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;pointer-events:none';   // au-dessus de l'aide, loin des panneaux du haut
   stableNav.innerHTML = '<button id="stable-jump" style="pointer-events:auto;background:#243f32;color:white;padding:9px;border-radius:6px;min-height:40px">Devant les écuries</button><button id="stable-yard" style="pointer-events:auto;background:#243f32;color:white;padding:9px;border-radius:6px;min-height:40px">Dans la cour</button><a href="./ecuries-v53.html" target="_blank" rel="noopener" style="pointer-events:auto;background:#243f32;color:white;padding:9px 11px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;min-height:22px">Détail V53</a>';
   document.body.appendChild(stableNav);
-  const jump = (x, z, yaw) => { rig.position.set(x, 0, z); rig.rotation.y = yaw; pitch = 0; camera.rotation.x = 0; rig.updateMatrixWorld(true); updateHint(); };
+  const jump = (x, z, yaw) => { rig.position.set(x, 0, z); rig.rotation.y = yaw; pitch = 0; camera.rotation.x = 0; rig.updateMatrixWorld(true); if (SHADOWS_ON) focusShadows(x, z); updateHint(); };
   $('stable-jump').addEventListener('click', () => jump(STABLE.x, STABLE.z + 38.2, 0));
   $('stable-yard').addEventListener('click', () => jump(STABLE.x, STABLE.z + 24, 0));
   // Raccourci « Auberge » : au sol, face à la terrasse, sur la place.
@@ -1321,6 +1388,13 @@ function main(THREE) {
     b.id = 'inn-jump'; b.textContent = 'Devant l’auberge';
     b.style.cssText = 'pointer-events:auto;background:#5a3b22;color:white;padding:9px;border-radius:6px;min-height:40px';
     stableNav.insertBefore(b, stableNav.firstChild);
+    const q = document.createElement('select');
+    q.id = 'inn-quality'; q.title = 'Qualité de l’auberge';
+    q.style.cssText = 'pointer-events:auto;background:#5a3b22;color:white;padding:8px;border-radius:6px;min-height:40px;border:1px solid #c9a27a;font:inherit';
+    q.innerHTML = Object.entries(QUALITY_LABELS).map(([k, v]) => `<option value="${k}">Auberge : ${v}</option>`).join('');
+    q.value = innQuality;
+    q.addEventListener('change', () => { innQuality = q.value; inn?.setQuality(innQuality); });
+    stableNav.insertBefore(q, b.nextSibling);
     b.addEventListener('click', () => {
       const c = Math.cos(INN.rotationY), s = Math.sin(INN.rotationY), lx = -2.5, lz = 15;   // devant la façade, sur la place
       const x = INN.x + c * lx + s * lz, z = INN.z - s * lx + c * lz;
@@ -1350,10 +1424,11 @@ function main(THREE) {
   window.ridelBanc = {
     state: () => ({ x: rig.position.x, z: rig.position.z, yaw: rig.rotation.y, fps, calls: lastCalls, tris: lastTris, teleports, houses: houses.length, xr: xrText }),
     walkable: isWalkable,
-    goTo: (x, z, yaw, p) => { rig.position.set(x, 0, z); if (yaw !== undefined) rig.rotation.y = yaw; if (p !== undefined) { pitch = p; camera.rotation.x = p; } rig.updateMatrixWorld(true); },
+    goTo: (x, z, yaw, p) => { rig.position.set(x, 0, z); if (yaw !== undefined) rig.rotation.y = yaw; if (p !== undefined) { pitch = p; camera.rotation.x = p; } rig.updateMatrixWorld(true); if (SHADOWS_ON) focusShadows(x, z); },
     stables: () => stables && { stats: stables.stats, loadMs: stables.loadMs, interactions: stables.getInteractionPoints().map((i) => ({ id: i.id, open: i.isOpen() })) },
     interact: (id) => { const it = stables && stables.getInteractionPoints().find((i) => i.id === id); return it ? it.action() : null; },
-    inn: () => inn && { stats: inn.stats(), loadMs: inn.loadMs, placement: INN },
+    inn: () => inn && { stats: inn.stats(), loadMs: inn.loadMs, loadAllMs: inn.loadAllMs, placement: INN },
+    setInnQuality: (q) => inn && inn.setQuality(q),
     innLocalToWorld: (lx, lz) => { const c = Math.cos(INN.rotationY), s = Math.sin(INN.rotationY); return { x: INN.x + c * lx + s * lz, z: INN.z - s * lx + c * lz }; },
     aerial: (on) => { aerialActive = on; },
     rigY: () => rig.position.y,

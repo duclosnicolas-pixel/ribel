@@ -1,7 +1,7 @@
 {
   "projet": "Ribel",
   "registre": "lieux et personnages",
-  "version": "2026-10-23 · auberge implantée",
+  "version": "2026-10-23 · auberge haute qualité",
   "lieux_village": {
     "statut": "relevés sur l'ébauche de la MOA et dans le dépôt ; implantations non contractuelles",
     "lieux": [
@@ -19,9 +19,9 @@
       },
       {
         "nom": "Auberge du Foyer d'Or (taverne-auberge)",
-        "type": "modèle Meshy fourni par le MOA le 23/10, allégé à 78 000 triangles",
+        "type": "modèle Meshy fourni par le MOA le 23/10, intégré en haute qualité (téléphone : géométrie complète 4,34 M triangles ; casque : 200 000 triangles aux reliefs cuits)",
         "module": "zones/05-village/02-taverne",
-        "etat": "implantée dans la maquette du village au nord-est de la place ; portes non ouvrables ; recette MOA attendue"
+        "etat": "implantée dans la maquette du village au nord-est de la place (recul validé) ; portes non ouvrables ; recette MOA attendue"
       },
       {
         "nom": "Forge",
